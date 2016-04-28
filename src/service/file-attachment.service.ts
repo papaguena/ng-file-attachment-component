@@ -138,6 +138,6 @@
         }
     }
 
-    angular.module('bluesky.quoteWizard.services.fileAttachment', ['ng.httpWrapper', 'ngFileUpload', 'ngFileSaver'])
+    angular.module('bluesky.core.services.fileAttachment', ['ng.httpWrapper', 'ngFileUpload', 'ngFileSaver'])
            .service('fileAttachmentService', FileAttachmentService);
 }

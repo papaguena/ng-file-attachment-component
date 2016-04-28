@@ -166,12 +166,12 @@
         }
     }
 
-    angular.module('bluesky.quoteWizard.components.fileAttachment', [
+    angular.module('bluesky.core.components.fileAttachment', [
         'cgBusy',
         'smart-table',
         'toaster',
         'file-attachment-component-tpl',
-        'bluesky.quoteWizard.services.fileAttachment'
+        'bluesky.core.services.fileAttachment'
     ])
     //TODO MGA: make this uniform for each directives // share behavior
     .value('cgBusyDefaults', { templateUrl: 'templates/angular-busy/angular-busy-custom.tpl.html' })
