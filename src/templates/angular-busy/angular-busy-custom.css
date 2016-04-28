@@ -1,0 +1,6 @@
+﻿.cg-busy-position {
+    display: inline-block;
+    position: relative;
+    z-index: 1002;
+    padding-bottom: 6px;
+}

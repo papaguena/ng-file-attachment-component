@@ -1,0 +1,18 @@
+﻿#file-attachment-container #input-file-select-field {
+    visibility: hidden;
+    position: absolute;
+    overflow: hidden;
+    width: 0;
+    height: 0;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+#file-attachment-container #select-file-btn {
+    /*margin: auto;*/
+    /*float: none; */
+    margin: 20px 20px;
+    clear: both;
+    line-height: 30px;
+}
