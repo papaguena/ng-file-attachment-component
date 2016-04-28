@@ -1,5 +1,6 @@
 'use strict';
 
+// imports
 var gulp = require('gulp'),
     ts = require('gulp-typescript'),
     sourcemaps = require('gulp-sourcemaps'),
@@ -10,19 +11,36 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     rename = require('gulp-rename'),
     ngAnnotate = require('gulp-ng-annotate'),
-    ngHtml2Js = require("gulp-ng-html2js");
+    ngHtml2Js = require('gulp-ng-html2js'),
+    htmlmin = require('gulp-htmlmin'),
+    cleanCSS = require('gulp-clean-css');
 
 
-
-
+//ts config
 var tsProject = ts.createProject('tsconfig.json');
 
+//gulp file config
 var tsSrc = 'src/**/*.ts',
-    tsExternalDefinitions = 'typings/**/*.d.ts';
+    tsExternalDefinitions = 'typings/**/*.d.ts',
+    partialsSrc = 'src/**/*.html',
+    cssSrc = 'src/**/*.css';
 
-gulp.task('clean-ts', function (cb) {
+var tsOutputFileName = 'ng-file-attachment-component.js',
+    tsdOutputFileName = 'ng-file-attachment-component.d.ts',
+    tplOutputFileName = 'ng-file-attachment-component.tpl.js',
+    cssOutputFileName = 'ng-file-attachment-component.css';
+
+var tsOutputDir = 'dist/js',
+    tsdOutputDir = 'dist/definitions',
+    tplOutputDir = 'dist/partials',
+    cssOutputDir = 'dist/css';
+
+
+/// TASKS ///
+
+gulp.task('clean-dist', function (cb) {
     // delete the files
-    del(['dist/**/*.js', 'dist/**/*.js.map', 'dist/**/*.d.ts'], cb);
+    del(['dist/**/*.*'], cb);
 });
 
 //TODO MGA: fix ts-lint task
@@ -31,34 +49,54 @@ gulp.task('ts-lint', function () {
     //return gulp.src(tsSrc).pipe(tslint({ configuration: require("./tslint.json")})).pipe(tslint.report('prose'));
 });
 
-gulp.task('compile-ts', function () {
+gulp.task('compile-ts', function () { //TODO MGA: clean-dist dependency necessary ?
     var tsResults = gulp.src([tsSrc, tsExternalDefinitions])
                         .pipe(sourcemaps.init())// This means sourcemaps will be generated
                         .pipe(ts(tsProject));
     return merge([
-        tsResults.dts.pipe(concat('ng-file-attachment-component.d.ts'))//TODO MGA : hardcoded output file to extract
-                     .pipe(gulp.dest('dist/definitions')),
+        tsResults.dts.pipe(concat(tsdOutputFileName))//TODO MGA : hardcoded output file to extract
+                     .pipe(gulp.dest(tsdOutputDir)),
 
-        tsResults.js//.pipe(concat('ng-http-wrapper.min.js'))
-                    .pipe(concat('ng-file-attachment-component.js'))//Comment uglify to get un-minified sources
-                    .pipe(ngAnnotate())//TODO MGA : check if it breaks sourcemaps ?
+        tsResults.js.pipe(concat(tsOutputFileName))//Comment uglify to get un-minified sources
+                    .pipe(ngAnnotate())
+                    .pipe(uglify()) //comment/uncomment to toggle minification //TODO : breaks source maps ?
                     .pipe(sourcemaps.write())// Now the sourcemaps are added to the .js file //TODO MGA: sourcemaps keeps track of original .ts files + the concatenated .js file : how to only have the 2 original ts files ?
-                    //.pipe(rename({ suffix: '.min' }))
-                    //.pipe(uglify()) //Uncomment to activate minification TODO MGA: minification breaks ng-annotate & source-mappings. TOFIX.
-                    .pipe(gulp.dest('dist/js'))
+                    .pipe(rename({ suffix: '.min' }))
+                    .pipe(gulp.dest(tsOutputDir))
     ]);
 });
 
-gulp.task('compile-tpl', function () {
-    gulp.src("src/**/*.html")
-    .pipe(ngHtml2Js({
-        moduleName: "file-attachment-component-tpl",
-        //prefix: "/partials"
-    }))
-    .pipe(concat('ng-file-attachment-component.tpl.js'))//Comment uglify to get un-minified sources
-    .pipe(gulp.dest("dist/partials"));
+/**
+ * 1 - compress html
+ * 2 - run html2js
+ * 3 - concatenate output files
+ * 4 - compress output js
+ */
+gulp.task('compile-tpl', function () { //TODO MGA: clean-dist dependency necessary ?
+    gulp.src(partialsSrc)
+        .pipe(htmlmin({
+            collapseWhitespace: true,
+            removeComments: true,
+            removeEmptyElements: true
+        }))
+        .pipe(ngHtml2Js({ moduleName: 'file-attachment-component-tpl' }))
+        .pipe(concat(tplOutputFileName))//Comment uglify to get un-minified sources
+        .pipe(uglify())
+        .pipe(rename({ suffix: '.min' }))
+        .pipe(gulp.dest(tplOutputDir));
 });
 
-//TODO MGA: fix ts-lint step
-gulp.task('default', ['clean-ts', 'compile-tpl', 'compile-ts']);
-//gulp.task('default', ['ts-lint', 'clean-ts', 'compile-ts']);
+
+gulp.task('compile-css', function () { //TODO MGA: clean-dist dependency necessary ?
+    return gulp.src(cssSrc)
+    .pipe(sourcemaps.init())
+    .pipe(cleanCSS())
+    .pipe(concat(cssOutputFileName))
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest(cssOutputDir));
+});
+
+
+//TODO MGA: fix ts-lint step & add-it + put dependency on it for other tasks ?
+gulp.task('default', ['clean-dist', 'compile-ts', 'compile-tpl', 'compile-css']);

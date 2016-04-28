@@ -1,16 +1,15 @@
-﻿///<reference path="../_app_references.ts" />
-namespace bluesky.core.components {
+﻿namespace bluesky.core.components {
 
     import FileAttachment = bluesky.core.models.FileAttachment;
     import FileAttachmentOriginEnum = bluesky.core.models.FileAttachmentOriginEnum;
     import IFileAttachmentService = bluesky.core.services.IFileAttachmentService;
 
-    interface IFileAttachmentComponentBindings {
+    export interface IFileAttachmentComponentBindings {
         elementIdBinding?: number;
         originBinding?: FileAttachmentOriginEnum;
     }
 
-    interface IFileAttachmentComponentController extends IFileAttachmentComponentBindings {
+    export interface IFileAttachmentComponentController extends IFileAttachmentComponentBindings {
         attachedFileList: Array<FileAttachment>;
         attachedFileListSource: Array<FileAttachment>;
 
@@ -32,7 +31,7 @@ namespace bluesky.core.components {
         httpPromises: Array<ng.IPromise<any>>;
     }
 
-    class FileAttachmentComponentController implements IFileAttachmentComponentController {
+    export class FileAttachmentComponentController implements IFileAttachmentComponentController {
 
         //#region binding prop
 
@@ -147,7 +146,7 @@ namespace bluesky.core.components {
         //#endregion
     }
 
-    class FileAttachmentComponent implements ng.IComponentOptions {
+    export class FileAttachmentComponent implements ng.IComponentOptions {
 
         public bindings: any;
         public controller: any;
@@ -163,7 +162,7 @@ namespace bluesky.core.components {
 
             this.controller = FileAttachmentComponentController;
             this.controllerAs = 'vm';
-            this.templateUrl = 'components/file-attachment/file-attachment.tpl.html';
+            this.templateUrl = 'component/file-attachment.tpl.html';
         }
     }
 
@@ -171,11 +170,11 @@ namespace bluesky.core.components {
         'cgBusy',
         'smart-table',
         'toaster',
-        'templates-common',
+        'file-attachment-component-tpl',
         'bluesky.quoteWizard.services.fileAttachment'
     ])
-        //TODO MGA: make this uniform for each directives // share behavior
-        .value('cgBusyDefaults', { templateUrl: 'templates/angular-busy/angular-busy-custom.tpl.html' })
-        .component('fileAttachmentComponent', new FileAttachmentComponent());
+    //TODO MGA: make this uniform for each directives // share behavior
+    .value('cgBusyDefaults', { templateUrl: 'templates/angular-busy/angular-busy-custom.tpl.html' })
+    .component('fileAttachmentComponent', new FileAttachmentComponent());
 
 }

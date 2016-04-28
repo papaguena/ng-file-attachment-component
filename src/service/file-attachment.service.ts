@@ -1,5 +1,4 @@
-﻿///<reference path="../_app_references.ts" />
-namespace bluesky.core.services {
+﻿namespace bluesky.core.services {
 
     import FileAttachment = bluesky.core.models.FileAttachment;
     import FileAttachmentOriginEnum = bluesky.core.models.FileAttachmentOriginEnum;
@@ -140,5 +139,5 @@ namespace bluesky.core.services {
     }
 
     angular.module('bluesky.quoteWizard.services.fileAttachment', ['ng.httpWrapper', 'ngFileUpload', 'ngFileSaver'])
-        .service('fileAttachmentService', FileAttachmentService);
+           .service('fileAttachmentService', FileAttachmentService);
 }
