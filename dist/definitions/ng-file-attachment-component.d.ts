@@ -1,3 +1,30 @@
+declare namespace bluesky.core.models {
+    /**
+     * TODO MGA : decide on practice to share enums with srv etc
+     */
+    enum FileAttachmentOriginEnum {
+        QuoteWizardFileAttachment = 0,
+        OrderEntryCustomDetails = 1,
+        OrderEntryAudioCustomDetail = 2,
+        OrderTrackingFileAttachment = 3,
+    }
+}
+
+declare namespace bluesky.core.models {
+    /**
+     * TODO MGA : export an interface too ?
+     */
+    class FileAttachment {
+        Id: number;
+        FileName: string;
+        Comment: string;
+        UploadedBy: string;
+        CreationDate: string;
+        Origin: string;
+        constructor(Id: number, FileName: string, Comment: string, UploadedBy: string, CreationDate: string, Origin: string);
+    }
+}
+
 declare namespace bluesky.core.services {
     import FileAttachment = bluesky.core.models.FileAttachment;
     import FileAttachmentOriginEnum = bluesky.core.models.FileAttachmentOriginEnum;
@@ -73,32 +100,5 @@ declare namespace bluesky.core.components {
         controllerAs: string;
         templateUrl: string;
         constructor();
-    }
-}
-
-declare module bluesky.core.models {
-    /**
-     * TODO MGA : decide on practice to share enums with srv etc
-     */
-    enum FileAttachmentOriginEnum {
-        QuoteWizardFileAttachment = 0,
-        OrderEntryCustomDetails = 1,
-        OrderEntryAudioCustomDetail = 2,
-        OrderTrackingFileAttachment = 3,
-    }
-}
-
-declare namespace bluesky.core.models {
-    /**
-     * TODO MGA : export an interface too ?
-     */
-    class FileAttachment {
-        Id: number;
-        FileName: string;
-        Comment: string;
-        UploadedBy: string;
-        CreationDate: string;
-        Origin: string;
-        constructor(Id: number, FileName: string, Comment: string, UploadedBy: string, CreationDate: string, Origin: string);
     }
 }
