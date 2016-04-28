@@ -1,29 +1,3 @@
-declare namespace bluesky.core.services {
-    import FileAttachment = bluesky.core.models.FileAttachment;
-    import FileAttachmentOriginEnum = bluesky.core.models.FileAttachmentOriginEnum;
-    interface IFileAttachmentService {
-        getAttachedFiles(elementId: number, origin: FileAttachmentOriginEnum): ng.IPromise<Array<FileAttachment>>;
-        attachFile(elementId: number, origin: FileAttachmentOriginEnum, fileToUpload: File): ng.IPromise<any>;
-        downloadAttachedFile(fileAttachment: FileAttachment, origin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void>;
-        deleteAttachedFile(fileAttachmentId: number, origin: FileAttachmentOriginEnum): ng.IPromise<void>;
-        editFileAttachmentComment(fileAttachmentId: number, origin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void>;
-    }
-    class FileAttachmentService implements IFileAttachmentService {
-        private httpWrapperService;
-        private $log;
-        private $timeout;
-        private Upload;
-        private Blob;
-        private FileSaver;
-        constructor(httpWrapperService: IHttpWrapperService, $log: ng.ILogService, $timeout: ng.ITimeoutService, Upload: ng.angularFileUpload.IUploadService, Blob: any, FileSaver: any);
-        getAttachedFiles(elementId: number, origin: FileAttachmentOriginEnum): ng.IPromise<Array<FileAttachment>>;
-        downloadAttachedFile(fileAttachment: FileAttachment, origin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void>;
-        deleteAttachedFile(fileAttachmentId: number, origin: FileAttachmentOriginEnum): ng.IPromise<void>;
-        attachFile(elementId: number, origin: FileAttachmentOriginEnum, fileToUpload: File): ng.IPromise<any>;
-        editFileAttachmentComment(fileAttachmentId: number, origin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void>;
-    }
-}
-
 declare namespace bluesky.core.models {
     /**
      * TODO MGA : decide on practice to share enums with srv etc
@@ -100,5 +74,31 @@ declare namespace bluesky.core.components {
         controllerAs: string;
         templateUrl: string;
         constructor();
+    }
+}
+
+declare namespace bluesky.core.services {
+    import FileAttachment = bluesky.core.models.FileAttachment;
+    import FileAttachmentOriginEnum = bluesky.core.models.FileAttachmentOriginEnum;
+    interface IFileAttachmentService {
+        getAttachedFiles(elementId: number, origin: FileAttachmentOriginEnum): ng.IPromise<Array<FileAttachment>>;
+        attachFile(elementId: number, origin: FileAttachmentOriginEnum, fileToUpload: File): ng.IPromise<any>;
+        downloadAttachedFile(fileAttachment: FileAttachment, origin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void>;
+        deleteAttachedFile(fileAttachmentId: number, origin: FileAttachmentOriginEnum): ng.IPromise<void>;
+        editFileAttachmentComment(fileAttachmentId: number, origin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void>;
+    }
+    class FileAttachmentService implements IFileAttachmentService {
+        private httpWrapperService;
+        private $log;
+        private $timeout;
+        private Upload;
+        private Blob;
+        private FileSaver;
+        constructor(httpWrapperService: IHttpWrapperService, $log: ng.ILogService, $timeout: ng.ITimeoutService, Upload: ng.angularFileUpload.IUploadService, Blob: any, FileSaver: any);
+        getAttachedFiles(elementId: number, origin: FileAttachmentOriginEnum): ng.IPromise<Array<FileAttachment>>;
+        downloadAttachedFile(fileAttachment: FileAttachment, origin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void>;
+        deleteAttachedFile(fileAttachmentId: number, origin: FileAttachmentOriginEnum): ng.IPromise<void>;
+        attachFile(elementId: number, origin: FileAttachmentOriginEnum, fileToUpload: File): ng.IPromise<any>;
+        editFileAttachmentComment(fileAttachmentId: number, origin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void>;
     }
 }

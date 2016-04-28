@@ -59,7 +59,7 @@ gulp.task('compile-ts', function () { //TODO MGA: clean-dist dependency necessar
 
         tsResults.js.pipe(concat(tsOutputFileName))//Comment uglify to get un-minified sources
                     .pipe(ngAnnotate())
-                    .pipe(uglify()) //comment/uncomment to toggle minification //TODO : breaks source maps ?
+                    //.pipe(uglify()) //comment/uncomment to toggle minification //TODO : breaks source maps ?
                     .pipe(sourcemaps.write())// Now the sourcemaps are added to the .js file //TODO MGA: sourcemaps keeps track of original .ts files + the concatenated .js file : how to only have the 2 original ts files ?
                     .pipe(rename({ suffix: '.min' }))
                     .pipe(gulp.dest(tsOutputDir))
