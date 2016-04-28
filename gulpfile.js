@@ -76,8 +76,8 @@ gulp.task('compile-tpl', function () { //TODO MGA: clean-dist dependency necessa
     gulp.src(partialsSrc)
         .pipe(htmlmin({
             collapseWhitespace: true,
-            removeComments: true,
-            removeEmptyElements: true
+            removeComments: true
+            //removeEmptyElements: true // makes font-awesome icons disapear
         }))
         .pipe(ngHtml2Js({ moduleName: 'file-attachment-component-tpl' }))
         .pipe(concat(tplOutputFileName))//Comment uglify to get un-minified sources

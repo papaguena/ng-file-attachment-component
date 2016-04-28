@@ -23,6 +23,8 @@
   ],
   "dependencies": {
     "underscore": "1.x.x",
+    "bootstrap": "3.x.x",
+    "font-awesome": "4.x.x",
     "angular": "1.5.x",
     "angular-animate": "1.5.x",
     "angularjs-toaster": "2.x.x",
