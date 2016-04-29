@@ -49,7 +49,7 @@ gulp.task('ts-lint', function () {
     //return gulp.src(tsSrc).pipe(tslint({ configuration: require("./tslint.json")})).pipe(tslint.report('prose'));
 });
 
-gulp.task('compile-ts', function () { //TODO MGA: clean-dist dependency necessary ?
+gulp.task('compile-ts', function () { //TODO MGA: clean-dist dependency necessary before this one can start ?
     var tsResults = gulp.src([tsSrc, tsExternalDefinitions])
                         .pipe(sourcemaps.init())// This means sourcemaps will be generated
                         .pipe(ts(tsProject));
@@ -59,9 +59,12 @@ gulp.task('compile-ts', function () { //TODO MGA: clean-dist dependency necessar
 
         tsResults.js.pipe(concat(tsOutputFileName))//Comment uglify to get un-minified sources
                     .pipe(ngAnnotate())
-                    //.pipe(uglify()) //comment/uncomment to toggle minification //TODO : breaks source maps ?
-                    .pipe(sourcemaps.write())// Now the sourcemaps are added to the .js file //TODO MGA: sourcemaps keeps track of original .ts files + the concatenated .js file : how to only have the 2 original ts files ?
-                    .pipe(rename({ suffix: '.min' }))
+                    //TODO MGA: we should not minify by default, but let consumer build tools take care of that ?
+                    //TODO MGA: breaks source maps ?
+                    //.pipe(uglify()) //comment/uncomment to toggle minification
+                    //TODO MGA: sourcemaps keeps track of original .ts files + the concatenated .js file : how to only have the 2 original ts files ?
+                    .pipe(sourcemaps.write())// Now the sourcemaps are added to the .js file
+                    //.pipe(rename({ suffix: '.min' })) //comment/uncomment based on minification turned on or not
                     .pipe(gulp.dest(tsOutputDir))
     ]);
 });
@@ -71,6 +74,7 @@ gulp.task('compile-ts', function () { //TODO MGA: clean-dist dependency necessar
  * 2 - run html2js
  * 3 - concatenate output files
  * 4 - compress output js
+ * TODO MGA: keep track of sourcemaps ?
  */
 gulp.task('compile-tpl', function () { //TODO MGA: clean-dist dependency necessary ?
     gulp.src(partialsSrc)
@@ -80,19 +84,26 @@ gulp.task('compile-tpl', function () { //TODO MGA: clean-dist dependency necessa
             //removeEmptyElements: true // makes font-awesome icons disapear
         }))
         .pipe(ngHtml2Js({ moduleName: 'file-attachment-component-tpl' }))
-        .pipe(concat(tplOutputFileName))//Comment uglify to get un-minified sources
-        .pipe(uglify())
-        .pipe(rename({ suffix: '.min' }))
+        .pipe(concat(tplOutputFileName))
+        //TODO MGA: we should not minify by default, but let consumer build tools take care of that ?
+        //.pipe(uglify()) //js minification turned on by default for templates
+        //.pipe(rename({ suffix: '.min' }))
         .pipe(gulp.dest(tplOutputDir));
 });
 
 
+/**
+ * 1 - compress CSS
+ * 2 - concatenate css in 1 file
+ * 3 - keep tracks of sourceMaps
+ */
 gulp.task('compile-css', function () { //TODO MGA: clean-dist dependency necessary ?
     return gulp.src(cssSrc)
     .pipe(sourcemaps.init())
-    .pipe(cleanCSS())
+    //TODO MGA: we should not minify by default, but let consumer build tools take care of that ?
+    //.pipe(cleanCSS()) //minification turned on by default for css
     .pipe(concat(cssOutputFileName))
-    .pipe(rename({ suffix: '.min' }))
+    //.pipe(rename({ suffix: '.min' }))
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(cssOutputDir));
 });

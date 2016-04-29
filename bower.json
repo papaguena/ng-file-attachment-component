@@ -7,9 +7,9 @@
   ],
   "license": "MIT",
   "main": [
-    "dist/js/ng-file-attachment-component.min.js",
-    "dist/partials/ng-file-attachment-component.tpl.min.js",
-    "dist/css/ng-file-attachment-component.min.css"
+    "dist/js/ng-file-attachment-component.js",
+    "dist/partials/ng-file-attachment-component.tpl.js",
+    "dist/css/ng-file-attachment-component.css"
   ],
   "typescript": {
     "definition": [
