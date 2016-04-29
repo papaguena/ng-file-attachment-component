@@ -2,7 +2,7 @@
   "compilerOptions": {
     //"emitDecoratorMetadata": true,
     //"experimentalDecorators": true,
-    "module": "system",
+    //"module": "es6", //Only for external style modules
     //"rootDir": "src",
     "target": "es5",
     //"outDir": "dist",

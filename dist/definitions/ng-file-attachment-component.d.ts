@@ -24,6 +24,7 @@ declare namespace bluesky.core.components {
         private $log;
         private toaster;
         private fileAttachmentService;
+        private fileAttachmentOriginEnum;
         elementIdBinding: number;
         originBinding: FileAttachmentOriginEnum;
         attachedFileList: Array<FileAttachment>;
@@ -32,7 +33,7 @@ declare namespace bluesky.core.components {
         fileToUpload: string;
         nbOfItemsPerPage: number;
         httpPromises: Array<ng.IPromise<any>>;
-        constructor($log: ng.ILogService, toaster: ngtoaster.IToasterService, fileAttachmentService: IFileAttachmentService);
+        constructor($log: ng.ILogService, toaster: ngtoaster.IToasterService, fileAttachmentService: IFileAttachmentService, fileAttachmentOriginEnum: FileAttachmentOriginEnum);
         getAttachedFiles(): void;
         downloadAttachedFile(fileAttachment: FileAttachment): void;
         deleteAttachedFile(fileAttachment: FileAttachment): void;
@@ -94,7 +95,8 @@ declare namespace bluesky.core.services {
         private Upload;
         private Blob;
         private FileSaver;
-        constructor(httpWrapperService: IHttpWrapperService, $log: ng.ILogService, $timeout: ng.ITimeoutService, Upload: ng.angularFileUpload.IUploadService, Blob: any, FileSaver: any);
+        private fileAttachmentOriginEnum;
+        constructor(httpWrapperService: IHttpWrapperService, $log: ng.ILogService, $timeout: ng.ITimeoutService, Upload: ng.angularFileUpload.IUploadService, Blob: any, FileSaver: any, fileAttachmentOriginEnum: FileAttachmentOriginEnum);
         getAttachedFiles(elementId: number, origin: FileAttachmentOriginEnum): ng.IPromise<Array<FileAttachment>>;
         downloadAttachedFile(fileAttachment: FileAttachment, origin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void>;
         deleteAttachedFile(fileAttachmentId: number, origin: FileAttachmentOriginEnum): ng.IPromise<void>;

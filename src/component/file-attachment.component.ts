@@ -57,14 +57,15 @@
         constructor(
             private $log: ng.ILogService,
             private toaster: ngtoaster.IToasterService,
-            private fileAttachmentService: IFileAttachmentService
+            private fileAttachmentService: IFileAttachmentService,
+            private fileAttachmentOriginEnum: FileAttachmentOriginEnum
         ) {
             if (!this.elementIdBinding) {
                 this.$log.error('parameter {elementIdBinding} is mandatory.');
                 return;
             }
 
-            if (!FileAttachmentOriginEnum[this.originBinding]) {
+            if (!this.fileAttachmentOriginEnum[this.originBinding]) {
                 this.$log.error('parameter {originBinding} is mandatory.');
                 return;
             }
@@ -171,7 +172,8 @@
         'smart-table',
         'toaster',
         'file-attachment-component-tpl',
-        'bluesky.core.services.fileAttachment'
+        'bluesky.core.services.fileAttachment',
+        'bluesky.core.models.fileAttachmentOriginEnum'
     ])
     //TODO MGA: make this uniform for each directives // share behavior
     .value('cgBusyDefaults', { templateUrl: 'templates/angular-busy/angular-busy-custom.tpl.html' })

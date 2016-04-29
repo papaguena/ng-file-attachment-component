@@ -25,7 +25,8 @@
             private $timeout: ng.ITimeoutService,
             private Upload: ng.angularFileUpload.IUploadService,
             private Blob: any, //TODO MGA: typings ?
-            private FileSaver: any //TODO MGA: typings ?
+            private FileSaver: any, //TODO MGA: typings ?
+            private fileAttachmentOriginEnum: FileAttachmentOriginEnum
         ) {
 
         }
@@ -33,7 +34,7 @@
         getAttachedFiles(elementId: number, origin: FileAttachmentOriginEnum): ng.IPromise<Array<FileAttachment>> {
             //TODO MGA : cleaner params handling to pass to http call
             return this.httpWrapperService.get<Array<FileAttachment>>('file-attachment/search', {
-                params: { 'elementId': elementId, 'origin': FileAttachmentOriginEnum[origin] },
+                params: { 'elementId': elementId, 'origin': this.fileAttachmentOriginEnum[origin] },
                 apiEndpoint: true
             });
         }
@@ -50,7 +51,7 @@
             }
 
             return this.httpWrapperService.get<File>('file-attachment/download', {
-                params: { 'fileAttachmentId': fileAttachment.Id, 'origin': FileAttachmentOriginEnum[origin] },
+                params: { 'fileAttachmentId': fileAttachment.Id, 'origin': this.fileAttachmentOriginEnum[origin] },
                 apiEndpoint: true
             }).then<void>((file: File) => {
                 //var filewithBOM = '\uFEFF'+ file;
@@ -97,7 +98,7 @@
 
         deleteAttachedFile(fileAttachmentId: number, origin: FileAttachmentOriginEnum): ng.IPromise<void> {
             return this.httpWrapperService.delete<void>('file-attachment/delete', {
-                params: { 'fileAttachmentId': fileAttachmentId, 'origin': FileAttachmentOriginEnum[origin] },
+                params: { 'fileAttachmentId': fileAttachmentId, 'origin': this.fileAttachmentOriginEnum[origin] },
                 apiEndpoint: true
             });
         }
@@ -114,7 +115,7 @@
                     //TODO MGA : create model for AttachFileDto & FileUploadBaseDto
                     {
                         'ElementId': elementId,
-                        'Origin': FileAttachmentOriginEnum[origin],
+                        'Origin': this.fileAttachmentOriginEnum[origin],
                         'FileUploadBaseDto': {
                             'FileName': fileToUpload.name,
                             'FileBase64Url': fileBase64Url.slice(fileBase64Url.indexOf('base64,') + 'base64,'.length), //strip the dataUri part of the base64 encoding to only keep base64 raw data.
@@ -132,12 +133,16 @@
                 //TODO MGA : create Dto client-side or update endpoint srv-side to support part-params url + comment as payload (cleaner SOC).
                 {
                     'FileAttachmentId': fileAttachmentId,
-                    'Origin': FileAttachmentOriginEnum[origin],
+                    'Origin': this.fileAttachmentOriginEnum[origin],
                     'Comment': updatedComment
                 }, { apiEndpoint: true });
         }
     }
 
-    angular.module('bluesky.core.services.fileAttachment', ['ng.httpWrapper', 'ngFileUpload', 'ngFileSaver'])
-           .service('fileAttachmentService', FileAttachmentService);
+    angular.module('bluesky.core.services.fileAttachment', [
+        'ng.httpWrapper',
+        'ngFileUpload',
+        'ngFileSaver',
+        'bluesky.core.models.fileAttachmentOriginEnum'
+    ]).service('fileAttachmentService', FileAttachmentService);
 }
