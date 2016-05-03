@@ -2,18 +2,24 @@
 
     import FileAttachment = bluesky.core.models.FileAttachment;
     import FileAttachmentOriginEnum = bluesky.core.models.FileAttachmentOriginEnum;
+    import ApplicationOriginEnum = bluesky.core.models.ApplicationOriginEnum;
+    import JsonBooleanResponse = bluesky.core.models.JsonBooleanResponse;
 
     export interface IFileAttachmentService {
 
-        getAttachedFiles(elementId: number, origin: FileAttachmentOriginEnum): ng.IPromise<Array<FileAttachment>>;
+        getAttachedFiles(elementId: number, applicationOrigin: ApplicationOriginEnum): ng.IPromise<Array<FileAttachment>>;
 
-        attachFile(elementId: number, origin: FileAttachmentOriginEnum, fileToUpload: File): ng.IPromise<any>;
+        attachFile(elementId: number, applicationOrigin: ApplicationOriginEnum, fileToUpload: File): ng.IPromise<any>;
 
-        downloadAttachedFile(fileAttachment: FileAttachment, origin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void>;
+        downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void>;
 
-        deleteAttachedFile(fileAttachmentId: number, origin: FileAttachmentOriginEnum): ng.IPromise<void>;
+        deleteAttachedFile(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void>;
 
-        editFileAttachmentComment(fileAttachmentId: number, origin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void>;
+        editFileAttachmentComment(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void>;
+
+        getSupportedMimeTypes(): ng.IPromise<Array<string>>;
+
+        getCurrentUserUploadRights(elementId: number, applicationOrigin: ApplicationOriginEnum): ng.IPromise<boolean>;
     }
 
     export class FileAttachmentService implements IFileAttachmentService {
@@ -26,20 +32,46 @@
             private Upload: ng.angularFileUpload.IUploadService,
             private Blob: any, //TODO MGA: typings ?
             private FileSaver: any, //TODO MGA: typings ?
-            private fileAttachmentOriginEnum: FileAttachmentOriginEnum
+            private fileAttachmentOriginEnum: FileAttachmentOriginEnum,
+            private applicationOriginEnum: ApplicationOriginEnum
         ) {
 
         }
 
-        getAttachedFiles(elementId: number, origin: FileAttachmentOriginEnum): ng.IPromise<Array<FileAttachment>> {
+        getAttachedFiles(elementId: number, applicationOrigin: ApplicationOriginEnum): ng.IPromise<Array<FileAttachment>> {
             //TODO MGA : cleaner params handling to pass to http call
             return this.httpWrapperService.get<Array<FileAttachment>>('file-attachment/search', {
-                params: { 'elementId': elementId, 'origin': this.fileAttachmentOriginEnum[origin] },
+                params: { 'elementId': elementId, 'applicationOrigin': this.applicationOriginEnum[applicationOrigin] },
                 apiEndpoint: true
             });
         }
 
-        downloadAttachedFile(fileAttachment: FileAttachment, origin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void> {
+        attachFile(elementId: number, applicationOrigin: ApplicationOriginEnum, fileToUpload: File): ng.IPromise<any> {
+            if (!fileToUpload) {
+                this.$log.warn('[fileAttachmentService.attachFile] file is empty, aborting upload.');
+                return null;
+            }
+
+            //TODO MGA: we should rely on a stronger http-wrapper to handle upload this way
+            return this.Upload.base64DataUrl(fileToUpload).then((fileBase64Url) => {
+                return this.httpWrapperService.post<any>('file-attachment/put',
+                    //TODO MGA : create model for AttachFileDto & FileUploadBaseDto
+                    {
+                        'ElementId': elementId,
+                        'ApplicationOrigin': this.applicationOriginEnum[applicationOrigin],
+                        'FileUploadBaseDto': {
+                            'FileName': fileToUpload.name,
+                            'FileBase64Url': fileBase64Url.slice(fileBase64Url.indexOf('base64,') + 'base64,'.length), //strip the dataUri part of the base64 encoding to only keep base64 raw data.
+                            'ContentType': fileToUpload.type
+                        }
+                    }, {
+                        apiEndpoint: true,
+                        uploadInBase64Json: true
+                    });
+            });
+        }
+
+        downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void> {
             if (!fileAttachment || !fileAttachment.Id || !fileAttachment.FileName) {
                 this.$log.error('[fileAttachment] mandatory.');
                 return null;
@@ -51,7 +83,7 @@
             }
 
             return this.httpWrapperService.get<File>('file-attachment/download', {
-                params: { 'fileAttachmentId': fileAttachment.Id, 'origin': this.fileAttachmentOriginEnum[origin] },
+                params: { 'fileAttachmentId': fileAttachment.Id, 'fileOrigin': this.fileAttachmentOriginEnum[fileOrigin] },
                 apiEndpoint: true
             }).then<void>((file: File) => {
                 //var filewithBOM = '\uFEFF'+ file;
@@ -96,53 +128,43 @@
             });
         }
 
-        deleteAttachedFile(fileAttachmentId: number, origin: FileAttachmentOriginEnum): ng.IPromise<void> {
+        deleteAttachedFile(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void> {
             return this.httpWrapperService.delete<void>('file-attachment/delete', {
-                params: { 'fileAttachmentId': fileAttachmentId, 'origin': this.fileAttachmentOriginEnum[origin] },
+                params: { 'fileAttachmentId': fileAttachmentId, 'fileOrigin': this.fileAttachmentOriginEnum[fileOrigin] },
                 apiEndpoint: true
             });
         }
 
-        attachFile(elementId: number, origin: FileAttachmentOriginEnum, fileToUpload: File): ng.IPromise<any> {
-            if (!fileToUpload) {
-                this.$log.warn('[fileAttachmentService.attachFile] file is empty, aborting upload.');
-                return null;
-            }
-
-            //TODO MGA: we should rely on a stronger http-wrapper to handle upload this way
-            return this.Upload.base64DataUrl(fileToUpload).then((fileBase64Url) => {
-                return this.httpWrapperService.post<any>('file-attachment/put',
-                    //TODO MGA : create model for AttachFileDto & FileUploadBaseDto
-                    {
-                        'ElementId': elementId,
-                        'Origin': this.fileAttachmentOriginEnum[origin],
-                        'FileUploadBaseDto': {
-                            'FileName': fileToUpload.name,
-                            'FileBase64Url': fileBase64Url.slice(fileBase64Url.indexOf('base64,') + 'base64,'.length), //strip the dataUri part of the base64 encoding to only keep base64 raw data.
-                            'ContentType': fileToUpload.type
-                        }
-                    }, {
-                        apiEndpoint: true,
-                        uploadInBase64Json: true
-                    });
-            });
-        }
-
-        editFileAttachmentComment(fileAttachmentId: number, origin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void> {
+        editFileAttachmentComment(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void> {
             return this.httpWrapperService.post<void>('file-attachment/update-comment',
                 //TODO MGA : create Dto client-side or update endpoint srv-side to support part-params url + comment as payload (cleaner SOC).
                 {
                     'FileAttachmentId': fileAttachmentId,
-                    'Origin': this.fileAttachmentOriginEnum[origin],
+                    'FileOrigin': this.fileAttachmentOriginEnum[fileOrigin],
                     'Comment': updatedComment
                 }, { apiEndpoint: true });
         }
+
+        getSupportedMimeTypes(): ng.IPromise<Array<string>> {
+            return this.httpWrapperService.get<Array<string>>('file-attachment/authorized-mime-types', { apiEndpoint: true });
+        }
+
+        getCurrentUserUploadRights(elementId: number, applicationOrigin: ApplicationOriginEnum): ng.IPromise<boolean> {
+            return this.httpWrapperService.get<JsonBooleanResponse>('file-attachment/get-current-user-upload-rights',
+                {
+                    params: { 'elementId': elementId, 'applicationOrigin': this.applicationOriginEnum[applicationOrigin] },
+                    apiEndpoint: true
+                })
+                .then((response) => response.booleanResponse);
+        }
+
     }
 
     angular.module('bluesky.core.services.fileAttachment', [
         'ng.httpWrapper',
         'ngFileUpload',
         'ngFileSaver',
-        'bluesky.core.models.fileAttachmentOriginEnum'
+        'bluesky.core.models.fileAttachmentOriginEnum',
+        'bluesky.core.models.applicationOriginEnum'
     ]).service('fileAttachmentService', FileAttachmentService);
 }

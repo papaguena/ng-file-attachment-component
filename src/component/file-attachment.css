@@ -1,4 +1,35 @@
-﻿#file-attachment-container #input-file-select-field {
+﻿#file-attachment-container .upload-file-drop-zone {
+    border: 2px dashed #555;
+    color: #222;
+    background: #fafafa;
+    min-height: 50px;
+    padding: 20px 20px;
+    text-align: center;
+    cursor: pointer;
+}
+
+    #file-attachment-container .upload-file-drop-zone.dragover,
+    #file-attachment-container .upload-file-drop-zone:hover {
+        border: 2px dashed #447f8b;
+        background: white;
+    }
+
+#file-attachment-container .upload-file-drag-and-drop-msg {
+    margin: 0.66em 0;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+#file-attachment-container .valid-file-alert-box,
+#file-attachment-container .invalid-file-alert-box {
+    /*background: #98B9BF;*/
+}
+
+#file-attachment-container .file-upload-alert-action-btns {
+    padding: 24px 0;
+}
+
+#file-attachment-container #input-file-select-field {
     visibility: hidden;
     position: absolute;
     overflow: hidden;
@@ -15,4 +46,26 @@
     margin: 20px 20px;
     clear: both;
     line-height: 30px;
+    text-align: center;
+}
+
+#file-attachment-container #file-attachment-table tbody > tr > td {
+    vertical-align: middle;
+    padding: 5px 10px;
+}
+
+#file-attachment-container #file-attachment-table .align-text-with-btn-inside-table-cell {
+    display: inline-block;
+    padding: 5px 10px;
+}
+
+#file-attachment-container #input-comment-field {
+    display: inline-block;
+    width: 77%;
+}
+
+#file-attachment-container #edit-comment-action-btns {
+    display: inline-block;
+    width: 23%;
+    text-align: center;
 }

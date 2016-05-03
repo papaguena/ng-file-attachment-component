@@ -16,6 +16,9 @@
     },
     "angularjs-toaster/angularjs-toaster.d.ts": {
       "commit": "310c247694d7f31bd2e3198f71c55221f7c3a3c7"
+    },
+    "underscore/underscore.d.ts": {
+      "commit": "e05e1f6f83c6ac84e9d7ff8284e8089d53a788a6"
     }
   }
 }

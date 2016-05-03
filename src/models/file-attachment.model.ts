@@ -8,9 +8,20 @@
             public Id: number,
             public FileName: string,
             public Comment: string,
-            public UploadedBy: string,
+            public UploaderInformation: UserInformation,
             public CreationDate: string,
-            public Origin: string
+            public FileOrigin: string
+        ) { }
+    }
+
+    export class UserInformation {
+        constructor(
+            public FirstName: string,
+            public LastName: string,
+            public DisplayName: string,
+            public userIdentifier: string,
+            public Email: string,
+            public PhoneNumber: string
         ) { }
     }
 }
