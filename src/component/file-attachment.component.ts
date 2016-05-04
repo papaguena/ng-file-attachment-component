@@ -277,8 +277,10 @@
         'bluesky.core.models.fileAttachmentOriginEnum',
         'bluesky.core.models.applicationOriginEnum'
     ])
-        //TODO MGA: make this uniform for each directives // share behavior
-        .value('cgBusyDefaults', { templateUrl: 'templates/angular-busy/angular-busy-custom.tpl.html' })
-        .component('fileAttachmentComponent', new FileAttachmentComponent());
+    //TODO MGA: make this uniform for each directives // share behavior
+    .value('cgBusyDefaults', { templateUrl: 'templates/angular-busy/angular-busy-custom.tpl.html' })
+    .constant('_', window['_'])
+    .constant('moment', window['moment'])
+    .component('fileAttachmentComponent', new FileAttachmentComponent());
 
 }

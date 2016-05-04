@@ -60,7 +60,7 @@
     padding: 5px 10px;
 }
 
-#file-attachment-container #input-comment-form-control {
+#file-attachment-container .input-comment-form-control {
     display: inline-block;
     float: left;
     width: 77%;
@@ -71,11 +71,11 @@
     vertical-align: middle;
 }
 
-#file-attachment-container #input-comment-form-control .help-block {
+#file-attachment-container .input-comment-form-control .help-block {
     margin-bottom: 0;
 }
 
-#file-attachment-container #edit-comment-action-btns {
+#file-attachment-container .edit-comment-action-btns {
     display: inline-block;
     float: right;
     width: 23%;
@@ -88,6 +88,6 @@
     min-width: 500px; /*enlarge column to give all-space-treatment for comment*/
 }
 
-#file-attachment-container #edit-comment-action-btns button {
+#file-attachment-container .edit-comment-action-btns button {
     /*float: right;*/
 }

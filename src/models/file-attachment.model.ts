@@ -12,6 +12,9 @@
             public UploaderInformation: UserInformation,
             public CreationDate: string,
             public FileOrigin: string,
+            public CanCurrentUserDownloadFile: boolean,
+            public CanCurrentUserDeleteFile: boolean,
+            public CanCurrentUserEditComment: boolean,
             //client-side properties
             public editCommentMode: boolean,
             public updatedComment: string,
