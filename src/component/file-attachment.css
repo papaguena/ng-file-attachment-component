@@ -10,7 +10,8 @@
 
     #file-attachment-container .upload-file-drop-zone.dragover,
     #file-attachment-container .upload-file-drop-zone:hover {
-        border: 2px dashed #447f8b;
+        border: 2px dashed #98B9BF;
+        /*border: 2px dashed #447f8b;*/
         background: white;
     }
 
@@ -59,13 +60,34 @@
     padding: 5px 10px;
 }
 
-#file-attachment-container #input-comment-field {
+#file-attachment-container #input-comment-form-control {
     display: inline-block;
+    float: left;
     width: 77%;
+    min-width: 200px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+
+#file-attachment-container #input-comment-form-control .help-block {
+    margin-bottom: 0;
 }
 
 #file-attachment-container #edit-comment-action-btns {
     display: inline-block;
+    float: right;
     width: 23%;
+    min-width: 90px;
     text-align: center;
+    vertical-align: middle;
+}
+
+#file-attachment-container .td-edit-comment-mode {
+    min-width: 500px; /*enlarge column to give all-space-treatment for comment*/
+}
+
+#file-attachment-container #edit-comment-action-btns button {
+    /*float: right;*/
 }

@@ -5,12 +5,17 @@
      */
     export class FileAttachment {
         constructor(
+            //srv-side properties
             public Id: number,
             public FileName: string,
             public Comment: string,
             public UploaderInformation: UserInformation,
             public CreationDate: string,
-            public FileOrigin: string
+            public FileOrigin: string,
+            //client-side properties
+            public editCommentMode: boolean,
+            public updatedComment: string,
+            public updatedCommentErrorMessage: string
         ) { }
     }
 

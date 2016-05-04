@@ -17,8 +17,8 @@
         fileAttachmentDownloadLinkElementId: string;
 
         getAttachedFiles(): void;
-        downloadAttachedFile: (fileAttachment: FileAttachment) => void;
-        deleteAttachedFile: (fileAttachment: FileAttachment) => void;
+        downloadAttachedFile(fileAttachment: FileAttachment): void;
+        deleteAttachedFile(fileAttachment: FileAttachment): void;
         getSupportedMimeTypes(): void;
 
         hasCurrentUserUploadRights: boolean;
@@ -26,15 +26,13 @@
         selectedFile: File;
         fileInvalidMessageArray: Array<string>;
         onFileSelected: (file: File, event: ng.angularFileUpload.IFileProgressEvent) => void;
-        importSelectedFile: () => void;
-        clearSelectedFile: () => void;
+        importSelectedFile(): void;
+        clearSelectedFile(): void;
 
-        editCommentMode: boolean;
-        cancelEditComment: () => void;
+        onUpdatedComment(fileAttachment: FileAttachment): void;
+        cancelEditComment(fileAttachment: FileAttachment): void;
 
         convertBytesToMegaBytes(bytes: number): number;
-
-        isSelectFileBtnDisabled: () => boolean;
 
         nbOfItemsPerPage: number;
 
@@ -63,7 +61,6 @@
         nbOfItemsPerPage: number;
         httpPromises: Array<ng.IPromise<any>>;
         supportedMimeTypes: Array<string>;
-        editCommentMode = false;
 
         //#endregion
 
@@ -159,7 +156,7 @@
             if (!fileAttachment || !fileAttachment.Id || !updatedComment) return;
 
             var httpPromise = this.fileAttachmentService.editFileAttachmentComment(fileAttachment.Id, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin], updatedComment).then(() => {
-                this.editCommentMode = false;
+                this.clearEditCommentMode(fileAttachment); //TODO MGA: useless if we reload all data from srv
                 // retrieve update list of files with updated file comment from srv : TODO MGA improve reload (costly)
                 this.getAttachedFiles();
                 // TODO MGA : highlight updated comment ?
@@ -168,8 +165,25 @@
             this.httpPromises.push(httpPromise);
         }
 
-        cancelEditComment(): void {
-            this.editCommentMode = false;
+        /**
+         * TODO MGA: improve inlin-form error handling & UI feedback ! not dynamic // fluid to use
+         * @param fileAttachment
+         */
+        onUpdatedComment(fileAttachment: FileAttachment): void {
+            if (!fileAttachment.updatedComment || fileAttachment.updatedComment.length < 1) {
+                fileAttachment.updatedCommentErrorMessage = "comment must be non-empty";
+            } else if (fileAttachment.updatedComment &&
+                (fileAttachment.updatedComment.length < 1 || fileAttachment.updatedComment.length > 255)) {
+                fileAttachment.updatedCommentErrorMessage = "comment must be < 255 characters";
+            } else {
+                fileAttachment.updatedCommentErrorMessage = null; //reset error message to flag comment as valid
+            }
+        }
+
+        cancelEditComment(fileAttachment: FileAttachment): void {
+            fileAttachment.editCommentMode = false;
+            //fileAttachment.updatedComment = ""; // TODO MGA: decide behavior ? better to keep last entry ? but then we must also keep error message
+            //fileAttachment.updatedCommentErrorMessage = null;
         }
 
         onFileSelected(file: File, event: ng.angularFileUpload.IFileProgressEvent): void {
@@ -209,9 +223,6 @@
             //this.fileSelectedIsValid = true;
         }
 
-        //TODO MGA
-        isSelectFileBtnDisabled(): boolean { return false; }
-
         convertBytesToMegaBytes(bytes: number): number {
             return +(bytes / 1000000).toFixed(2); //converts back to number 2-digits string representation of original conversion.
         }
@@ -219,6 +230,12 @@
         //#endregion
 
         //#region private methods
+
+        clearEditCommentMode(fileAttachment: FileAttachment) {
+            fileAttachment.editCommentMode = false;
+            fileAttachment.updatedComment = null;
+            fileAttachment.updatedCommentErrorMessage = null;
+        }
 
         getCurrentUserUploadRights(): void {
             this.fileAttachmentService
