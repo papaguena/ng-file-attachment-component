@@ -14,8 +14,6 @@
         attachedFileList: Array<FileAttachment>;
         attachedFileListSource: Array<FileAttachment>;
 
-        fileAttachmentDownloadLinkElementId: string;
-
         getAttachedFiles(): void;
         downloadAttachedFile(fileAttachment: FileAttachment): void;
         deleteAttachedFile(fileAttachment: FileAttachment): void;
@@ -54,7 +52,6 @@
 
         attachedFileList: Array<FileAttachment>;
         attachedFileListSource: Array<FileAttachment>;
-        fileAttachmentDownloadLinkElementId = 'file-attachment-download-link'; //TODO MGA : to const ?
         hasCurrentUserUploadRights = false;
         selectedFile: File;
         fileInvalidMessageArray: Array<string>;
@@ -132,9 +129,7 @@
         downloadAttachedFile(fileAttachment: FileAttachment): void {
             if (!fileAttachment || !fileAttachment.Id) return;
 
-            var jQueryAnchorElement = $('#' + this.fileAttachmentDownloadLinkElementId); //add id selector
-
-            var httpPromise = this.fileAttachmentService.downloadAttachedFile(fileAttachment, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin], jQueryAnchorElement).then(() => {
+            var httpPromise = this.fileAttachmentService.downloadAttachedFile(fileAttachment, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin]).then(() => {
                 //TODO MGA ? or leave as is.
             });
 

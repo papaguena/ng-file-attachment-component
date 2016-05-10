@@ -1,6 +1,7 @@
 ﻿namespace bluesky.core.services {
 
     import FileAttachment = bluesky.core.models.FileAttachment;
+    import FileContent = bluesky.core.models.FileContent;
     import FileAttachmentOriginEnum = bluesky.core.models.FileAttachmentOriginEnum;
     import ApplicationOriginEnum = bluesky.core.models.ApplicationOriginEnum;
     import JsonBooleanResponse = bluesky.core.models.JsonBooleanResponse;
@@ -11,7 +12,7 @@
 
         attachFile(elementId: number, applicationOrigin: ApplicationOriginEnum, fileToUpload: File): ng.IPromise<any>;
 
-        downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void>;
+        downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void>;
 
         deleteAttachedFile(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void>;
 
@@ -71,58 +72,26 @@
             });
         }
 
-        downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void> {
+        downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void> {
             if (!fileAttachment || !fileAttachment.Id || !fileAttachment.FileName) {
                 this.$log.error('[fileAttachment] mandatory.');
                 return null;
             }
 
-            if (!anchorElement) {
-                this.$log.error('[anchorElement] mandatory.');
-                return null;
-            }
-
-            return this.httpWrapperService.get<File>('file-attachment/download', {
+            return this.httpWrapperService.getFile('file-attachment/download', {
                 params: { 'fileAttachmentId': fileAttachment.Id, 'fileOrigin': this.fileAttachmentOriginEnum[fileOrigin] },
                 apiEndpoint: true
-            }).then<void>((file: File) => {
-                //var filewithBOM = '\uFEFF'+ file;
-                var blob = new Blob([file], { type: 'application/octet-stream;utf-8' }); //TODO MGA: type ??? how to retrieve content-type from blob
-                //var blob = new Blob([file], { type: 'image/png;charset=windows-1252' }); //TODO MGA: type ??? how to retrieve content-type from blob
-                //var blob = new Blob([file], { type: 'image/png;charset=ISO-8859-1' }); //TODO MGA: type ??? how to retrieve content-type from blob
-                //var blob = new Blob([file], { type: 'image/png' }); //TODO MGA: type ??? how to retrieve content-type from blob
+            }).then<void>((file: FileContent) => {
 
-                this.FileSaver.saveAs(blob, fileAttachment.FileName || 'unknown.bin');
+                //TODO MGA: extract file download as a separate service
 
-                //var url = window.URL.createObjectURL(blob);
+                //var filewithBOM = '\uFEFF'+ file; //Add BOM UTF-8 before ? for now delayed to FileSaver.saveAs() flag autoBOM parameter.
+                var blob = new Blob([file.content], { type: file.type });
+                //var blob = new Blob([file], { type: 'application/octet-stream;utf-8' });
+                //var blob = new Blob([file], { type: 'image/png;charset=windows-1252' });
+                //var blob = new Blob([file], { type: 'image/png;charset=ISO-8859-1' });
 
-                ////TODO MGA: delay to to be outside of current digest cycle : how to fix ?
-                //this.$timeout(() => {
-                //    anchorElement
-                //        .attr({
-                //            "href": url,
-                //            "download": 'unknown.png'
-                //            //"download": fileAttachmentName || 'unknown.bin'
-                //        })
-                //        //.html($("a").attr("download"))
-                //        .get(0).click();
-
-                //    window.URL.revokeObjectURL(url);
-                //    // TODO MGA : hack to trigger download of file from JS, to refactor in a directive + see Jquery limitations of click event : http://stackoverflow.com/questions/17311645/download-image-with-javascript 
-                //    //anchorElement.prop('href', url);
-                //    //anchorElement.prop('download', fileAttachmentName || 'unknown.bin'); //TODO MGA ???
-
-                //    //anchorElement.get(0).click();
-                //}, 0);
-
-
-                //anchorElement.click();
-
-                //setTimeout(function () {
-                // Added a small delay because file was removed to quickly in firefox and the download was even not initialized
-                // Remove temp element from browser cache : TODO MGA find a way to do this in a finally() clause in the service method ?
-                //window.URL.revokeObjectURL(url);
-                //}, 100);
+                this.FileSaver.saveAs(blob, file.name || fileAttachment.FileName || 'unknown.bin'); // autoBOM enabled by default
 
                 return;
             });

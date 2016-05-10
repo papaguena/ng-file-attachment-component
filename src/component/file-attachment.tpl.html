@@ -26,7 +26,7 @@
                                 <span>{{ attachedFileEntry.UploaderInformation.DisplayName }}</span>
                                 <span ng-if="!!attachedFileEntry.UploaderInformation.Email">({{ attachedFileEntry.UploaderInformation.Email }})</span>
                             </td>
-                            <td>{{ attachedFileEntry.CreationDate }} UTC</td> <!--TODO MGA fix UTC date-->
+                            <td>{{ attachedFileEntry.CreationDate }} <span ng-show="!!attachedFileEntry.CreationDate">UTC</span></td> <!--TODO MGA fix UTC date-->
                             <!--UI dynamically change when user toggle edit comment mode-->
                             <td ng-if="!attachedFileEntry.editCommentMode">
                                 <div class="align-text-with-btn-inside-table-cell">{{ attachedFileEntry.Comment }}</div>
@@ -83,10 +83,7 @@
                                         type="button">
                                     <i class="fa fa-download" aria-hidden="true"></i>
                                 </button>
-                                <!--<a id="{{ vm.fileAttachmentDownloadLinkElementId }}"
-                                   class="ng-hide"
-                                   target="_self">
-                                </a>-->
+
                                 <button ng-disabled="!attachedFileEntry.CanCurrentUserDeleteFile"
                                         ng-click="vm.deleteAttachedFile(attachedFileEntry)"
                                         class="delete-attached-file-btn btn btn-danger btn-sm"
@@ -96,7 +93,7 @@
                             </td>
                         </tr>
                     </tbody>
-                    <tfoot ng-show="vm.atttachedFileList && (vm.attachedFileList.length > vm.nbOfItemsPerPage)">
+                    <tfoot ng-if="!!vm.attachedFileListSource && (vm.attachedFileListSource.length > vm.nbOfItemsPerPage)">
                         <tr>
                             <td colspan="6" class="text-center">
                                 <div st-pagination

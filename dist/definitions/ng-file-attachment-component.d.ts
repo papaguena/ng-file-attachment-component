@@ -10,7 +10,6 @@ declare namespace bluesky.core.components {
     interface IFileAttachmentComponentController extends IFileAttachmentComponentBindings {
         attachedFileList: Array<FileAttachment>;
         attachedFileListSource: Array<FileAttachment>;
-        fileAttachmentDownloadLinkElementId: string;
         getAttachedFiles(): void;
         downloadAttachedFile(fileAttachment: FileAttachment): void;
         deleteAttachedFile(fileAttachment: FileAttachment): void;
@@ -39,7 +38,6 @@ declare namespace bluesky.core.components {
         originBinding: ApplicationOriginEnum;
         attachedFileList: Array<FileAttachment>;
         attachedFileListSource: Array<FileAttachment>;
-        fileAttachmentDownloadLinkElementId: string;
         hasCurrentUserUploadRights: boolean;
         selectedFile: File;
         fileInvalidMessageArray: Array<string>;
@@ -142,7 +140,7 @@ declare namespace bluesky.core.services {
     interface IFileAttachmentService {
         getAttachedFiles(elementId: number, applicationOrigin: ApplicationOriginEnum): ng.IPromise<Array<FileAttachment>>;
         attachFile(elementId: number, applicationOrigin: ApplicationOriginEnum, fileToUpload: File): ng.IPromise<any>;
-        downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void>;
+        downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void>;
         deleteAttachedFile(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void>;
         editFileAttachmentComment(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void>;
         getSupportedMimeTypes(): ng.IPromise<Array<string>>;
@@ -160,7 +158,7 @@ declare namespace bluesky.core.services {
         constructor(httpWrapperService: IHttpWrapperService, $log: ng.ILogService, $timeout: ng.ITimeoutService, Upload: ng.angularFileUpload.IUploadService, Blob: any, FileSaver: any, fileAttachmentOriginEnum: FileAttachmentOriginEnum, applicationOriginEnum: ApplicationOriginEnum);
         getAttachedFiles(elementId: number, applicationOrigin: ApplicationOriginEnum): ng.IPromise<Array<FileAttachment>>;
         attachFile(elementId: number, applicationOrigin: ApplicationOriginEnum, fileToUpload: File): ng.IPromise<any>;
-        downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum, anchorElement: JQuery): ng.IPromise<void>;
+        downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void>;
         deleteAttachedFile(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void>;
         editFileAttachmentComment(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void>;
         getSupportedMimeTypes(): ng.IPromise<Array<string>>;
