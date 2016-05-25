@@ -10,21 +10,27 @@ declare namespace bluesky.core.components {
     interface IFileAttachmentComponentController extends IFileAttachmentComponentBindings {
         attachedFileList: Array<FileAttachment>;
         attachedFileListSource: Array<FileAttachment>;
-        getAttachedFiles(): void;
         downloadAttachedFile(fileAttachment: FileAttachment): void;
         deleteAttachedFile(fileAttachment: FileAttachment): void;
-        getSupportedMimeTypes(): void;
         hasCurrentUserUploadRights: boolean;
+        selectedFiles: Array<File>;
         selectedFile: File;
         fileInvalidMessageArray: Array<string>;
-        onFileSelected: (file: File, event: ng.angularFileUpload.IFileProgressEvent) => void;
+        onFileSelected: (files: Array<File>, file: File, newFiles: Array<File>, duplicateFiles: Array<File>, invalidFiles: Array<File>, event: JQueryEventObject) => void;
         importSelectedFile(): void;
-        clearSelectedFile(): void;
-        onUpdatedComment(fileAttachment: FileAttachment): void;
+        clearSelectedFiles(): void;
+        onCommentInputKeyPress: ($event: JQueryEventObject, fileAttachment: FileAttachment) => boolean;
+        updateFileAttachmentComment(fileAttachment: FileAttachment): void;
+        /**
+         * Check new comment input against validation rules, update VM to inform the view of potential errors.
+         * @param fileAttachment
+         * @returns {boolean} true if input is invalid, otherwise false.
+         */
+        onUpdatedCommentValidateInput(fileAttachment: FileAttachment): boolean;
         cancelEditComment(fileAttachment: FileAttachment): void;
         convertBytesToMegaBytes(bytes: number): number;
         nbOfItemsPerPage: number;
-        supportedMimeTypes: Array<string>;
+        supportedExtensions: Array<string>;
         httpPromises: Array<ng.IPromise<any>>;
     }
     class FileAttachmentComponentController implements IFileAttachmentComponentController {
@@ -39,30 +45,36 @@ declare namespace bluesky.core.components {
         attachedFileList: Array<FileAttachment>;
         attachedFileListSource: Array<FileAttachment>;
         hasCurrentUserUploadRights: boolean;
+        selectedFiles: Array<File>;
         selectedFile: File;
         fileInvalidMessageArray: Array<string>;
         nbOfItemsPerPage: number;
         httpPromises: Array<ng.IPromise<any>>;
-        supportedMimeTypes: Array<string>;
+        supportedExtensions: Array<string>;
         maxFileSize: number;
         constructor($log: ng.ILogService, toaster: ngtoaster.IToasterService, _: UnderscoreStatic, fileAttachmentService: IFileAttachmentService, fileAttachmentOriginEnum: FileAttachmentOriginEnum, applicationOriginEnum: ApplicationOriginEnum);
-        getAttachedFiles(): void;
-        getSupportedMimeTypes(): void;
         downloadAttachedFile(fileAttachment: FileAttachment): void;
         deleteAttachedFile(fileAttachment: FileAttachment): void;
-        updateFileAttachmentComment(fileAttachment: FileAttachment, updatedComment: string): void;
+        updateFileAttachmentComment(fileAttachment: FileAttachment): void;
         /**
-         * TODO MGA: improve inlin-form error handling & UI feedback ! not dynamic // fluid to use
+         * TODO MGA: improve inline-form error handling & UI feedback ! not dynamic // fluid to use
          * @param fileAttachment
          */
-        onUpdatedComment(fileAttachment: FileAttachment): void;
+        onUpdatedCommentValidateInput: (fileAttachment: FileAttachment) => boolean;
+        /**
+         * Handler dedicated to prevent on keypress='enter' the submission of a form if this component is inside one.
+         * Instead, it pushes the new value
+         */
+        onCommentInputKeyPress: ($event: JQueryEventObject, fileAttachment: FileAttachment) => boolean;
         cancelEditComment(fileAttachment: FileAttachment): void;
-        onFileSelected(file: File, event: ng.angularFileUpload.IFileProgressEvent): void;
+        onFileSelected(files: Array<File>, file: File, newFiles: Array<File>, duplicateFiles: Array<File>, invalidFiles: Array<File>, event: JQueryEventObject): void;
         importSelectedFile(): void;
-        clearSelectedFile(): void;
+        clearSelectedFiles(): void;
         convertBytesToMegaBytes(bytes: number): number;
-        clearEditCommentMode(fileAttachment: FileAttachment): void;
-        getCurrentUserUploadRights(): void;
+        private getAttachedFiles();
+        private getSupportedExtensions();
+        private clearEditCommentMode(fileAttachment);
+        private getCurrentUserUploadRights();
     }
     class FileAttachmentComponent implements ng.IComponentOptions {
         bindings: any;
@@ -143,6 +155,7 @@ declare namespace bluesky.core.services {
         downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void>;
         deleteAttachedFile(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void>;
         editFileAttachmentComment(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void>;
+        getSupportedExtensions(): ng.IPromise<Array<string>>;
         getSupportedMimeTypes(): ng.IPromise<Array<string>>;
         getCurrentUserUploadRights(elementId: number, applicationOrigin: ApplicationOriginEnum): ng.IPromise<boolean>;
     }
@@ -161,7 +174,15 @@ declare namespace bluesky.core.services {
         downloadAttachedFile(fileAttachment: FileAttachment, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void>;
         deleteAttachedFile(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum): ng.IPromise<void>;
         editFileAttachmentComment(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void>;
+        getSupportedExtensions(): ng.IPromise<Array<string>>;
         getSupportedMimeTypes(): ng.IPromise<Array<string>>;
         getCurrentUserUploadRights(elementId: number, applicationOrigin: ApplicationOriginEnum): ng.IPromise<boolean>;
     }
+}
+
+/**
+ * Extends the File native type with a new method 'getFileExtension'
+ */
+interface File {
+    getFileExtension(): string;
 }

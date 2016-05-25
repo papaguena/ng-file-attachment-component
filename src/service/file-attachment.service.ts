@@ -18,6 +18,8 @@
 
         editFileAttachmentComment(fileAttachmentId: number, fileOrigin: FileAttachmentOriginEnum, updatedComment: string): ng.IPromise<void>;
 
+        getSupportedExtensions(): ng.IPromise<Array<string>>;
+
         getSupportedMimeTypes(): ng.IPromise<Array<string>>;
 
         getCurrentUserUploadRights(elementId: number, applicationOrigin: ApplicationOriginEnum): ng.IPromise<boolean>;
@@ -112,6 +114,10 @@
                     'FileOrigin': this.fileAttachmentOriginEnum[fileOrigin],
                     'Comment': updatedComment
                 }, { apiEndpoint: true });
+        }
+
+        getSupportedExtensions(): ng.IPromise<Array<string>> {
+            return this.httpWrapperService.get<Array<string>>('file-attachment/authorized-file-extensions', { apiEndpoint: true });
         }
 
         getSupportedMimeTypes(): ng.IPromise<Array<string>> {

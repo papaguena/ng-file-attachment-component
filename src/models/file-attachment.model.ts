@@ -15,6 +15,7 @@
             public CanCurrentUserDownloadFile: boolean,
             public CanCurrentUserDeleteFile: boolean,
             public CanCurrentUserEditComment: boolean,
+
             //client-side properties
             public editCommentMode: boolean,
             public updatedComment: string,

@@ -38,29 +38,30 @@
                                 </button>
                             </td>
 
-                            <td ng-if="attachedFileEntry.editCommentMode && attachedFileEntry.CanCurrentUserEditComment" 
+                            <td ng-if="attachedFileEntry.editCommentMode && attachedFileEntry.CanCurrentUserEditComment"
                                 class="td-edit-comment-mode">
 
-                                <div class="input-comment-form-control"
-                                     class="form-group"
+                                <div class="input-comment-form-control form-group"
                                      ng-class="{ 'has-error': !!attachedFileEntry.updatedCommentErrorMessage }">
 
                                     <input type="text"
                                            class="edit-comment-input form-control"
                                            ng-model="attachedFileEntry.updatedComment"
-                                           ng-model-options='{ debounce: 400 }'
-                                           ng-change="vm.onUpdatedComment(attachedFileEntry)"
+                                           ng-change="vm.onUpdatedCommentValidateInput(attachedFileEntry)"
+                                           ng-keypress="vm.onCommentInputKeyPress($event,attachedFileEntry)"
                                            ng-disabled="!attachedFileEntry.CanCurrentUserEditComment"
                                            placeholder="{{attachedFileEntry.Comment}}"/>
+                                           <!--ng-model-options='{ debounce: 400 }'-->
 
                                     <span ng-show="!!attachedFileEntry.updatedCommentErrorMessage"
-                                          class="help-block">{{ attachedFileEntry.updatedCommentErrorMessage }}</span>
-
+                                          class="help-block">
+                                        {{ attachedFileEntry.updatedCommentErrorMessage }}
+                                    </span>
                                 </div>
 
                                 <div class="edit-comment-action-btns">
 
-                                    <button ng-click="vm.updateFileAttachmentComment(attachedFileEntry, attachedFileEntry.updatedComment)"
+                                    <button ng-click="vm.updateFileAttachmentComment(attachedFileEntry)"
                                             class="apply-edited-comment-btn btn btn-primary btn-sm"
                                             ng-disabled="!attachedFileEntry.updatedComment || !!attachedFileEntry.updatedCommentErrorMessage"
                                             type="button">
@@ -135,7 +136,7 @@
                                 <dt>size</dt>
                                 <dd>{{ vm.convertBytesToMegaBytes(vm.selectedFile.size) }} mb</dd>
                                 <dt>file type</dt>
-                                <dd>{{ vm.selectedFile.type }}</dd>
+                                <dd>{{ vm.selectedFile.getFileExtension() }}</dd>
                             </dl>
                         </div>
                         <div class="col-lg-2 text-center file-upload-alert-action-btns">
@@ -147,7 +148,7 @@
                             </button>
                             <button id="clear-selected-file-valid-btn"
                                     class="btn btn-danger text-center"
-                                    ng-click="vm.clearSelectedFile()"
+                                    ng-click="vm.clearSelectedFiles()"
                                     type="button">
                                 <i class="fa fa-trash" aria-hidden="true"></i> Clear
                             </button>
@@ -169,7 +170,7 @@
                         </div>
                         <div class="col-lg-2 text-center file-upload-alert-action-btns">
                             <button id="clear-selected-file-invalid-btn"
-                                    ng-click="vm.clearSelectedFile()"
+                                    ng-click="vm.clearSelectedFiles()"
                                     class="btn btn-danger"
                                     type="button">
                                 <i class="fa fa-trash" aria-hidden="true"></i> Clear
@@ -188,21 +189,23 @@
                              class="upload-file-drop-zone"
                              ngf-drop
                              ngf-select
-                             ng-model="vm.selectedFile"
-                             ngf-change="vm.onFileSelected($file, $event)"
-                             ngf-multiple="false"
+                             ngf-multiple="true"
+                             ngf-change="vm.onFileSelected($files, $file, $newFiles, $duplicateFiles, $invalidFiles, $event)"
                              ngf-drag-over-class="'dragover'">
+                            <!--ngf-max-files="1"-->
+                            <!--ngf-multiple="false"-->
+                            <!--ng-model="vm.selectedFile"-->
 
                             <div class="upload-file-drag-and-drop-msg">
                                 Upload file
                             </div>
                             <!--Hidden button replicating drag & drop UI, used for AT tests. To keep in sync with above.-->
                             <input ngf-select
+                                   ngf-multiple="true"
                                    id="input-file-select-field"
                                    type="file"
-                                   ng-model="vm.selectedFile"
-                                   ngf-change="vm.onFileSelected($file, $event)"
-                                   ngf-multiple="false" />
+                                   ngf-change="vm.onFileSelected($files, $file, $newFiles, $duplicateFiles, $invalidFiles, $event)"/>
+                            <!--ng-model="vm.selectedFile"-->
                         </div>
                     </div>
                 </div>
