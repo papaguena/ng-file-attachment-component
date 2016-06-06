@@ -1,7 +1,7 @@
 {
   "name": "ng-file-attachment-component",  
   "description": "Simple file attachment component. Makes strong assumptions on backend, not for external use atm.",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "authors": [
     "Mathis Gardon"
   ],
