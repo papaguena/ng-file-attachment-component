@@ -210,12 +210,12 @@
             }
 
             if (files && files.length > 1) {
-                this.fileInvalidMessageArray.push('Cannot upload multiple files at ounce. Please select only one file.');
+                this.fileInvalidMessageArray.push('Cannot upload multiple files at once. Please select only one file.');
                 return;
             }
 
             //var fileExtension = file.name.substr(file.name.lastIndexOf('.') + 1);
-            var fileFormatSupported = _(this.supportedExtensions).any(supportedExtension => this.selectedFile.getFileExtension() === supportedExtension);
+            var fileFormatSupported = _(this.supportedExtensions).any(supportedExtension => this.selectedFile.getFileExtension() === supportedExtension.toLowerCase());
 
             //var fileFormatSupported = file.type && //If file.type is null / empty, that means current OS doesn't know about the file format => delegate to server to validate if format is valid, we can't know client-side.
             //    _(this.supportedExtensions).any((supportedMimeType) => file.type === supportedMimeType);
