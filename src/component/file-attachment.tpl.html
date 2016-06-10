@@ -32,7 +32,7 @@
                         <td ng-if="!attachedFileEntry.editCommentMode">
                             <div class="align-text-with-btn-inside-table-cell">{{ attachedFileEntry.Comment }}</div>
                             <button ng-disabled="!attachedFileEntry.CanCurrentUserEditComment"
-                                    ng-click="vm.setEditCommmentModeOn(attachedFileEntry)"
+                                    ng-click="vm.switchToEditCommentMode(attachedFileEntry)"
                                     class="edit-comment-btn btn btn-primary btn-sm pull-right"
                                     type="button">
                                 <i class="fa fa-pencil" aria-hidden="true"></i>
@@ -134,7 +134,7 @@
                                 <dt>filename</dt>
                                 <dd>{{ vm.selectedFile.name }}</dd>
                                 <dt>size</dt>
-                                <dd>{{ vm.convertBytesToMegaBytes(vm.selectedFile.size) }} mb</dd>
+                                <dd>{{ vm.bytesToFormatedString(vm.selectedFile.size) }}</dd>
                                 <dt>file type</dt>
                                 <dd>{{ vm.selectedFile.getFileExtension() }}</dd>
                             </dl>

@@ -16,7 +16,6 @@
 
         downloadAttachedFile(fileAttachment: FileAttachment): void;
         deleteAttachedFile(fileAttachment: FileAttachment): void;
-        setEditCommmentModeOn(fileAttachment: FileAttachment):void;
 
         hasCurrentUserUploadRights: boolean;
 
@@ -27,9 +26,9 @@
         importSelectedFile(): void;
         clearSelectedFiles(): void;
 
+        switchToEditCommentMode(fileAttachment: FileAttachment): void;
         //TODO MGA: only Jquery event has necessary properties to know source event, check why angular typings doesn't contain necessary params
         onCommentInputKeyPress: ($event: JQueryEventObject, fileAttachment: FileAttachment) => boolean;
-
         updateFileAttachmentComment(fileAttachment: FileAttachment): void;
         /**
          * Check new comment input against validation rules, update VM to inform the view of potential errors.
@@ -39,7 +38,7 @@
         onUpdatedCommentValidateInput(fileAttachment: FileAttachment): boolean;
         cancelEditComment(fileAttachment: FileAttachment): void;
 
-        convertBytesToMegaBytes(bytes: number): number;
+        bytesToFormatedString(bytes: number): string;
 
         nbOfItemsPerPage: number;
 
@@ -116,13 +115,62 @@
 
         //#endregion
 
-        //#region vm / public methods
+        //#region file attachment management
 
-        public setEditCommmentModeOn(fileAttachment: FileAttachment){
-            fileAttachment.editCommentMode = true;
-            fileAttachment.updatedComment = fileAttachment.Comment;
+        //TODO MGA: handle multiple files & clean up view bindings
+        public onFileSelected(files: Array<File>, file: File, newFiles: Array<File>, duplicateFiles: Array<File>, invalidFiles: Array<File>, event: JQueryEventObject): void {
+            if (!files && !file) return;
+
+            this.fileInvalidMessageArray = []; //reset error array
+
+            if (files) {
+                this.selectedFiles = files;
+            }
+            if (file) {
+                this.selectedFile = file;
+            }
+
+            if (files && files.length > 1) {
+                this.fileInvalidMessageArray.push('Cannot upload multiple files at once. Please select only one file.');
+                return;
+            }
+
+            //var fileExtension = file.name.substr(file.name.lastIndexOf('.') + 1);
+            var fileFormatSupported = _(this.supportedExtensions).any(supportedExtension => this.selectedFile.getFileExtension() === supportedExtension.toLowerCase());
+
+            //var fileFormatSupported = file.type && //If file.type is null / empty, that means current OS doesn't know about the file format => delegate to server to validate if format is valid, we can't know client-side.
+            //    _(this.supportedExtensions).any((supportedMimeType) => file.type === supportedMimeType);
+
+            if (!fileFormatSupported)
+                this.fileInvalidMessageArray.push(`Unsupported file format: '${this.selectedFile.type}' with extension: '${this.selectedFile.getFileExtension()}'`);
+
+            if (!this.selectedFile.size)
+                this.fileInvalidMessageArray.push('Selected file is empty.');
+            else if (this.selectedFile.size >= this.maxFileSize)
+                this.fileInvalidMessageArray.push(`Selected file is bigger (${this.bytesToFormatedString(this.selectedFile.size)}) than authorized file size: ${this.bytesToFormatedString(this.maxFileSize)}`);
         }
-        
+
+        public importSelectedFile(): void {
+            if (!this.selectedFile || _(this.fileInvalidMessageArray).any()) return; //TODO MGA $log
+
+            var httpPromise = this.fileAttachmentService.attachFile(this.elementIdBinding, this.originBinding, this.selectedFile).then(() => {
+                this.toaster.success(`File (${this.selectedFile.name}) successfully uploaded.`);
+                this.getAttachedFiles(); //TODO MGA : highlight new entry ?
+            }).finally(() => {
+                //clean up selected file
+                this.clearSelectedFiles();
+            });
+
+            this.httpPromises.push(httpPromise);
+        }
+
+        public clearSelectedFiles(): void {
+            this.selectedFiles = null;
+            this.selectedFile = null;
+            this.fileInvalidMessageArray = []; // clear error messages
+            //this.fileSelectedIsValid = true;
+        }
+
         public downloadAttachedFile(fileAttachment: FileAttachment): void {
             if (!fileAttachment || !fileAttachment.Id) return;
 
@@ -142,6 +190,32 @@
             });
 
             this.httpPromises.push(httpPromise);
+        }
+
+        //TODO MGA: extract to service / extension method ?
+        public bytesToFormatedString(bytes: number): string {
+
+            if (!bytes) return '0 Byte';
+
+            var referenceScale = 1000; // or 1024 for binary ref vs. SI
+
+            var unitArray = ['Bytes', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
+
+            // get level to adopt for size multiple (bytes, KB etc).
+            var unitIndex = Math.floor(Math.log(bytes) / Math.log(referenceScale));
+
+            // 2 decimals, and if only Os after the ',', then parseFloat will trim ending 0s.
+            return parseFloat((bytes / Math.pow(referenceScale, unitIndex)).toFixed(2)) + ' ' + unitArray[unitIndex];
+        }
+
+        //#endregion
+
+        //#region comment management
+
+        public switchToEditCommentMode(fileAttachment: FileAttachment) {
+            fileAttachment.editCommentMode = true;
+            //set updated comment field to previous comment value
+            fileAttachment.updatedComment = fileAttachment.Comment || "";
         }
 
         public updateFileAttachmentComment(fileAttachment: FileAttachment): void {
@@ -202,63 +276,7 @@
             //fileAttachment.updatedCommentErrorMessage = null;
         }
 
-        //TODO MGA: handle multiple files & clean up view bindings
-        public onFileSelected(files: Array<File>, file: File, newFiles: Array<File>, duplicateFiles: Array<File>, invalidFiles: Array<File>, event: JQueryEventObject): void {
-            if (!files && !file) return;
-
-            this.fileInvalidMessageArray = []; //reset error array
-
-            if (files) {
-                this.selectedFiles = files;
-            }
-            if (file) {
-                this.selectedFile = file;
-            }
-
-            if (files && files.length > 1) {
-                this.fileInvalidMessageArray.push('Cannot upload multiple files at once. Please select only one file.');
-                return;
-            }
-
-            //var fileExtension = file.name.substr(file.name.lastIndexOf('.') + 1);
-            var fileFormatSupported = _(this.supportedExtensions).any(supportedExtension => this.selectedFile.getFileExtension() === supportedExtension.toLowerCase());
-
-            //var fileFormatSupported = file.type && //If file.type is null / empty, that means current OS doesn't know about the file format => delegate to server to validate if format is valid, we can't know client-side.
-            //    _(this.supportedExtensions).any((supportedMimeType) => file.type === supportedMimeType);
-
-            if (!fileFormatSupported)
-                this.fileInvalidMessageArray.push(`Unsupported file format: '${this.selectedFile.type}' with extension: '${this.selectedFile.getFileExtension()}'`);
-
-            if (!this.selectedFile.size)
-                this.fileInvalidMessageArray.push('Selected file is empty.');
-            else if (this.selectedFile.size >= this.maxFileSize)
-                this.fileInvalidMessageArray.push(`Selected file is bigger (${this.convertBytesToMegaBytes(this.selectedFile.size)}mb) than authorized file size: ${this.convertBytesToMegaBytes(this.maxFileSize)}mb`);
-        }
-
-        public importSelectedFile(): void {
-            if (!this.selectedFile || _(this.fileInvalidMessageArray).any()) return; //TODO MGA $log
-
-            var httpPromise = this.fileAttachmentService.attachFile(this.elementIdBinding, this.originBinding, this.selectedFile).then(() => {
-                this.toaster.success(`File (${this.selectedFile.name}) successfully uploaded.`);
-                this.getAttachedFiles(); //TODO MGA : highlight new entry ?
-            }).finally(() => {
-                //clean up selected file
-                this.clearSelectedFiles();
-            });
-
-            this.httpPromises.push(httpPromise);
-        }
-
-        public clearSelectedFiles(): void {
-            this.selectedFiles = null;
-            this.selectedFile = null;
-            this.fileInvalidMessageArray = []; // clear error messages
-            //this.fileSelectedIsValid = true;
-        }
-
-        public convertBytesToMegaBytes(bytes: number): number {
-            return +(bytes / 1000000).toFixed(2); //converts back to number 2-digits string representation of original conversion.
-        }
+        //#endregion
 
         //#endregion
 
