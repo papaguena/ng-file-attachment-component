@@ -32,7 +32,7 @@
                         <td ng-if="!attachedFileEntry.editCommentMode">
                             <div class="align-text-with-btn-inside-table-cell">{{ attachedFileEntry.Comment }}</div>
                             <button ng-disabled="!attachedFileEntry.CanCurrentUserEditComment"
-                                    ng-click="attachedFileEntry.editCommentMode = true"
+                                    ng-click="vm.setEditCommmentModeOn(attachedFileEntry)"
                                     class="edit-comment-btn btn btn-primary btn-sm pull-right"
                                     type="button">
                                 <i class="fa fa-pencil" aria-hidden="true"></i>
@@ -50,8 +50,7 @@
                                        ng-model="attachedFileEntry.updatedComment"
                                        ng-change="vm.onUpdatedCommentValidateInput(attachedFileEntry)"
                                        ng-keypress="vm.onCommentInputKeyPress($event,attachedFileEntry)"
-                                       ng-disabled="!attachedFileEntry.CanCurrentUserEditComment"
-                                       placeholder="{{attachedFileEntry.Comment}}"/>
+                                       ng-disabled="!attachedFileEntry.CanCurrentUserEditComment"/>
                                 <!--ng-model-options='{ debounce: 400 }'-->
 
                                 <span ng-show="!!attachedFileEntry.updatedCommentErrorMessage"

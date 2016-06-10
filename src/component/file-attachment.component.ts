@@ -16,6 +16,7 @@
 
         downloadAttachedFile(fileAttachment: FileAttachment): void;
         deleteAttachedFile(fileAttachment: FileAttachment): void;
+        setEditCommmentModeOn(fileAttachment: FileAttachment):void;
 
         hasCurrentUserUploadRights: boolean;
 
@@ -117,6 +118,11 @@
 
         //#region vm / public methods
 
+        public setEditCommmentModeOn(fileAttachment: FileAttachment){
+            fileAttachment.editCommentMode = true;
+            fileAttachment.updatedComment = fileAttachment.Comment;
+        }
+        
         public downloadAttachedFile(fileAttachment: FileAttachment): void {
             if (!fileAttachment || !fileAttachment.Id) return;
 
