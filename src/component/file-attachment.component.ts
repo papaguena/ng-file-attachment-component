@@ -5,6 +5,10 @@
     import IFileAttachmentService = bluesky.core.services.IFileAttachmentService;
     import ApplicationOriginEnum = bluesky.core.models.ApplicationOriginEnum;
 
+    //TODO MGA: convert both constants to srv-side provided limit to stay in sync with CoreAPI limits / validators
+    const MAX_FILE_SIZE = 20000000; //in bytes = 20mb
+    const MAX_COMMENT_LENGTH = 128;
+
     export interface IFileAttachmentComponentBindings {
         elementIdBinding?: number;
         originBinding?: ApplicationOriginEnum;
@@ -28,7 +32,7 @@
 
         switchToEditCommentMode(fileAttachment: FileAttachment): void;
         //TODO MGA: only Jquery event has necessary properties to know source event, check why angular typings doesn't contain necessary params
-        onCommentInputKeyPress: ($event: JQueryEventObject, fileAttachment: FileAttachment) => boolean;
+        onCommentInputKeyPress: ($event: JQueryEventObject, fileAttachment: FileAttachment) => void;
         updateFileAttachmentComment(fileAttachment: FileAttachment): void;
         /**
          * Check new comment input against validation rules, update VM to inform the view of potential errors.
@@ -67,12 +71,6 @@
         nbOfItemsPerPage: number;
         httpPromises: Array<ng.IPromise<any>>;
         supportedExtensions: Array<string>;
-
-        //#endregion
-
-        //#region private fields
-
-        maxFileSize = 20000000; //in bytes = 20mb
 
         //#endregion
 
@@ -146,8 +144,8 @@
 
             if (!this.selectedFile.size)
                 this.fileInvalidMessageArray.push('Selected file is empty.');
-            else if (this.selectedFile.size >= this.maxFileSize)
-                this.fileInvalidMessageArray.push(`Selected file is bigger (${this.bytesToFormatedString(this.selectedFile.size)}) than authorized file size: ${this.bytesToFormatedString(this.maxFileSize)}`);
+            else if (this.selectedFile.size >= MAX_FILE_SIZE)
+                this.fileInvalidMessageArray.push(`Selected file is bigger (${this.bytesToFormatedString(this.selectedFile.size)}) than authorized file size: ${this.bytesToFormatedString(MAX_FILE_SIZE)}`);
         }
 
         public importSelectedFile(): void {
@@ -174,9 +172,10 @@
         public downloadAttachedFile(fileAttachment: FileAttachment): void {
             if (!fileAttachment || !fileAttachment.Id) return;
 
-            var httpPromise = this.fileAttachmentService.downloadAttachedFile(fileAttachment, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin]).then(() => {
-                //TODO MGA ? or leave as is.
-            });
+            var httpPromise = this.fileAttachmentService.downloadAttachedFile(fileAttachment, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin])
+                .then(() => {
+                    //TODO MGA ? or leave as is.
+                });
 
             this.httpPromises.push(httpPromise);
         }
@@ -184,10 +183,11 @@
         public deleteAttachedFile(fileAttachment: FileAttachment): void {
             if (!fileAttachment || !fileAttachment.Id) return;
 
-            var httpPromise = this.fileAttachmentService.deleteAttachedFile(fileAttachment.Id, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin]).then(() => {
-                this.toaster.success(`File (${fileAttachment.FileName}) successfully deleted.`);
-                this.getAttachedFiles();
-            });
+            var httpPromise = this.fileAttachmentService.deleteAttachedFile(fileAttachment.Id, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin])
+                .then(() => {
+                    this.toaster.success(`File (${fileAttachment.FileName}) successfully deleted.`);
+                    this.getAttachedFiles();
+                });
 
             this.httpPromises.push(httpPromise);
         }
@@ -241,8 +241,8 @@
             if (!fileAttachment.updatedComment || fileAttachment.updatedComment.length < 1) {
                 fileAttachment.updatedCommentErrorMessage = 'comment must be non-empty';
                 return false;
-            } else if (fileAttachment.updatedComment && fileAttachment.updatedComment.length >= 255) {
-                fileAttachment.updatedCommentErrorMessage = 'comment must be < 255 characters';
+            } else if (fileAttachment.updatedComment && fileAttachment.updatedComment.length >= MAX_COMMENT_LENGTH) {
+                fileAttachment.updatedCommentErrorMessage = `comment must be < ${MAX_COMMENT_LENGTH} characters`;
                 return false;
             } else {
                 fileAttachment.updatedCommentErrorMessage = null; //reset error message to flag comment as valid
@@ -254,7 +254,7 @@
          * Handler dedicated to prevent on keypress='enter' the submission of a form if this component is inside one.
          * Instead, it pushes the new value 
          */
-        public onCommentInputKeyPress = ($event: JQueryEventObject, fileAttachment: FileAttachment): boolean => {
+        public onCommentInputKeyPress = ($event: JQueryEventObject, fileAttachment: FileAttachment): void => {
 
             var keyCode = $event.keyCode || $event.which;
 
@@ -264,10 +264,7 @@
                 //call 
                 this.updateFileAttachmentComment(fileAttachment);
 
-                return false; //TODO MGA: necessary ?
             }
-
-            return true;
         }
 
         public cancelEditComment(fileAttachment: FileAttachment): void {

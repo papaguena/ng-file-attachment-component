@@ -17,8 +17,8 @@ try {
   module = angular.module('file-attachment-component-tpl', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('templates/smart-table/smart-table-pagination.tpl.html',
-    '<nav ng-if="pages.length >= 2"><ul class="pagination"><li ng-class="{ disabled : currentPage === 1}"><a ng-click="selectPage(1)"><i class="fa fa-angle-double-left"></i></a></li><li ng-class="{ disabled : currentPage === 1}"><a ng-click="selectPage(currentPage-1)"><i class="fa fa-angle-left"></i></a></li><li ng-repeat="page in pages" ng-class="{active: page==currentPage}"><a ng-click="selectPage(page)">{{ page }}</a></li><li ng-class="{ disabled : currentPage === numPages}"><a ng-click="selectPage(currentPage+1)"><i class="fa fa-angle-right"></i></a></li><li ng-class="{ disabled : currentPage === numPages}"><a ng-click="selectPage(numPages)"><i class="fa fa-angle-double-right"></i></a></li></ul></nav>');
+  $templateCache.put('templates/angular-busy/angular-busy-custom.tpl.html',
+    '<div class="cg-busy-default-wrapper"><div class="cg-busy-position"><div class="cg-busy-default-spinner"><div class="bar1"></div><div class="bar2"></div><div class="bar3"></div><div class="bar4"></div><div class="bar5"></div><div class="bar6"></div><div class="bar7"></div><div class="bar8"></div><div class="bar9"></div><div class="bar10"></div><div class="bar11"></div><div class="bar12"></div></div></div></div>');
 }]);
 })();
 
@@ -29,7 +29,7 @@ try {
   module = angular.module('file-attachment-component-tpl', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('templates/angular-busy/angular-busy-custom.tpl.html',
-    '<div class="cg-busy-default-wrapper"><div class="cg-busy-position"><div class="cg-busy-default-spinner"><div class="bar1"></div><div class="bar2"></div><div class="bar3"></div><div class="bar4"></div><div class="bar5"></div><div class="bar6"></div><div class="bar7"></div><div class="bar8"></div><div class="bar9"></div><div class="bar10"></div><div class="bar11"></div><div class="bar12"></div></div></div></div>');
+  $templateCache.put('templates/smart-table/smart-table-pagination.tpl.html',
+    '<nav ng-if="pages.length >= 2"><ul class="pagination"><li ng-class="{ disabled : currentPage === 1}"><a ng-click="selectPage(1)"><i class="fa fa-angle-double-left"></i></a></li><li ng-class="{ disabled : currentPage === 1}"><a ng-click="selectPage(currentPage-1)"><i class="fa fa-angle-left"></i></a></li><li ng-repeat="page in pages" ng-class="{active: page==currentPage}"><a ng-click="selectPage(page)">{{ page }}</a></li><li ng-class="{ disabled : currentPage === numPages}"><a ng-click="selectPage(currentPage+1)"><i class="fa fa-angle-right"></i></a></li><li ng-class="{ disabled : currentPage === numPages}"><a ng-click="selectPage(numPages)"><i class="fa fa-angle-double-right"></i></a></li></ul></nav>');
 }]);
 })();
