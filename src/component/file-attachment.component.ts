@@ -5,6 +5,10 @@
     import IFileAttachmentService = bluesky.core.services.IFileAttachmentService;
     import ApplicationOriginEnum = bluesky.core.models.ApplicationOriginEnum;
 
+    //TODO MGA: convert both constants to srv-side provided limit to stay in sync with CoreAPI limits / validators
+    const MAX_FILE_SIZE = 20000000; //in bytes = 20mb
+    const MAX_COMMENT_LENGTH = 128;
+
     export interface IFileAttachmentComponentBindings {
         elementIdBinding?: number;
         originBinding?: ApplicationOriginEnum;
@@ -16,7 +20,6 @@
 
         downloadAttachedFile(fileAttachment: FileAttachment): void;
         deleteAttachedFile(fileAttachment: FileAttachment): void;
-        setEditCommmentModeOn(fileAttachment: FileAttachment):void;
 
         hasCurrentUserUploadRights: boolean;
 
@@ -27,9 +30,9 @@
         importSelectedFile(): void;
         clearSelectedFiles(): void;
 
+        switchToEditCommentMode(fileAttachment: FileAttachment): void;
         //TODO MGA: only Jquery event has necessary properties to know source event, check why angular typings doesn't contain necessary params
-        onCommentInputKeyPress: ($event: JQueryEventObject, fileAttachment: FileAttachment) => boolean;
-
+        onCommentInputKeyPress: ($event: JQueryEventObject, fileAttachment: FileAttachment) => void;
         updateFileAttachmentComment(fileAttachment: FileAttachment): void;
         /**
          * Check new comment input against validation rules, update VM to inform the view of potential errors.
@@ -39,7 +42,7 @@
         onUpdatedCommentValidateInput(fileAttachment: FileAttachment): boolean;
         cancelEditComment(fileAttachment: FileAttachment): void;
 
-        convertBytesToMegaBytes(bytes: number): number;
+        bytesToFormatedString(bytes: number): string;
 
         nbOfItemsPerPage: number;
 
@@ -68,12 +71,6 @@
         nbOfItemsPerPage: number;
         httpPromises: Array<ng.IPromise<any>>;
         supportedExtensions: Array<string>;
-
-        //#endregion
-
-        //#region private fields
-
-        maxFileSize = 20000000; //in bytes = 20mb
 
         //#endregion
 
@@ -116,91 +113,7 @@
 
         //#endregion
 
-        //#region vm / public methods
-
-        public setEditCommmentModeOn(fileAttachment: FileAttachment){
-            fileAttachment.editCommentMode = true;
-            fileAttachment.updatedComment = fileAttachment.Comment;
-        }
-        
-        public downloadAttachedFile(fileAttachment: FileAttachment): void {
-            if (!fileAttachment || !fileAttachment.Id) return;
-
-            var httpPromise = this.fileAttachmentService.downloadAttachedFile(fileAttachment, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin]).then(() => {
-                //TODO MGA ? or leave as is.
-            });
-
-            this.httpPromises.push(httpPromise);
-        }
-
-        public deleteAttachedFile(fileAttachment: FileAttachment): void {
-            if (!fileAttachment || !fileAttachment.Id) return;
-
-            var httpPromise = this.fileAttachmentService.deleteAttachedFile(fileAttachment.Id, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin]).then(() => {
-                this.toaster.success(`File (${fileAttachment.FileName}) successfully deleted.`);
-                this.getAttachedFiles();
-            });
-
-            this.httpPromises.push(httpPromise);
-        }
-
-        public updateFileAttachmentComment(fileAttachment: FileAttachment): void {
-            if (!fileAttachment || !fileAttachment.Id || !fileAttachment.updatedComment) return;
-
-            if (!this.onUpdatedCommentValidateInput(fileAttachment)) return; // check validation rules are ok
-
-            var httpPromise = this.fileAttachmentService.editFileAttachmentComment(fileAttachment.Id, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin], fileAttachment.updatedComment).then(() => {
-                this.clearEditCommentMode(fileAttachment); //TODO MGA: useless if we reload all data from srv
-                // retrieve update list of files with updated file comment from srv : TODO MGA improve reload (costly)
-                this.getAttachedFiles();
-                // TODO MGA : highlight updated comment ?
-            });
-
-            this.httpPromises.push(httpPromise);
-        }
-
-        /**
-         * TODO MGA: improve inline-form error handling & UI feedback ! not dynamic // fluid to use
-         * @param fileAttachment
-         */
-        public onUpdatedCommentValidateInput = (fileAttachment: FileAttachment): boolean => {
-            if (!fileAttachment.updatedComment || fileAttachment.updatedComment.length < 1) {
-                fileAttachment.updatedCommentErrorMessage = 'comment must be non-empty';
-                return false;
-            } else if (fileAttachment.updatedComment && fileAttachment.updatedComment.length >= 255) {
-                fileAttachment.updatedCommentErrorMessage = 'comment must be < 255 characters';
-                return false;
-            } else {
-                fileAttachment.updatedCommentErrorMessage = null; //reset error message to flag comment as valid
-                return true;
-            }
-        }
-
-        /**
-         * Handler dedicated to prevent on keypress='enter' the submission of a form if this component is inside one.
-         * Instead, it pushes the new value 
-         */
-        public onCommentInputKeyPress = ($event: JQueryEventObject, fileAttachment: FileAttachment): boolean => {
-
-            var keyCode = $event.keyCode || $event.which;
-
-            if (keyCode === 13) { // 'Enter' key pressed
-                //prevent form submission
-                $event.preventDefault();
-                //call 
-                this.updateFileAttachmentComment(fileAttachment);
-
-                return false; //TODO MGA: necessary ?
-            }
-
-            return true;
-        }
-
-        public cancelEditComment(fileAttachment: FileAttachment): void {
-            fileAttachment.editCommentMode = false;
-            //fileAttachment.updatedComment = ""; // TODO MGA: decide behavior ? better to keep last entry ? but then we must also keep error message
-            //fileAttachment.updatedCommentErrorMessage = null;
-        }
+        //#region file attachment management
 
         //TODO MGA: handle multiple files & clean up view bindings
         public onFileSelected(files: Array<File>, file: File, newFiles: Array<File>, duplicateFiles: Array<File>, invalidFiles: Array<File>, event: JQueryEventObject): void {
@@ -231,8 +144,8 @@
 
             if (!this.selectedFile.size)
                 this.fileInvalidMessageArray.push('Selected file is empty.');
-            else if (this.selectedFile.size >= this.maxFileSize)
-                this.fileInvalidMessageArray.push(`Selected file is bigger (${this.convertBytesToMegaBytes(this.selectedFile.size)}mb) than authorized file size: ${this.convertBytesToMegaBytes(this.maxFileSize)}mb`);
+            else if (this.selectedFile.size >= MAX_FILE_SIZE)
+                this.fileInvalidMessageArray.push(`Selected file is bigger (${this.bytesToFormatedString(this.selectedFile.size)}) than authorized file size: ${this.bytesToFormatedString(MAX_FILE_SIZE)}`);
         }
 
         public importSelectedFile(): void {
@@ -256,9 +169,111 @@
             //this.fileSelectedIsValid = true;
         }
 
-        public convertBytesToMegaBytes(bytes: number): number {
-            return +(bytes / 1000000).toFixed(2); //converts back to number 2-digits string representation of original conversion.
+        public downloadAttachedFile(fileAttachment: FileAttachment): void {
+            if (!fileAttachment || !fileAttachment.Id) return;
+
+            var httpPromise = this.fileAttachmentService.downloadAttachedFile(fileAttachment, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin])
+                .then(() => {
+                    //TODO MGA ? or leave as is.
+                });
+
+            this.httpPromises.push(httpPromise);
         }
+
+        public deleteAttachedFile(fileAttachment: FileAttachment): void {
+            if (!fileAttachment || !fileAttachment.Id) return;
+
+            var httpPromise = this.fileAttachmentService.deleteAttachedFile(fileAttachment.Id, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin])
+                .then(() => {
+                    this.toaster.success(`File (${fileAttachment.FileName}) successfully deleted.`);
+                    this.getAttachedFiles();
+                });
+
+            this.httpPromises.push(httpPromise);
+        }
+
+        //TODO MGA: extract to service / extension method ?
+        public bytesToFormatedString(bytes: number): string {
+
+            if (!bytes) return '0 Byte';
+
+            var referenceScale = 1000; // or 1024 for binary ref vs. SI
+
+            var unitArray = ['Bytes', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
+
+            // get level to adopt for size multiple (bytes, KB etc).
+            var unitIndex = Math.floor(Math.log(bytes) / Math.log(referenceScale));
+
+            // 2 decimals, and if only Os after the ',', then parseFloat will trim ending 0s.
+            return parseFloat((bytes / Math.pow(referenceScale, unitIndex)).toFixed(2)) + ' ' + unitArray[unitIndex];
+        }
+
+        //#endregion
+
+        //#region comment management
+
+        public switchToEditCommentMode(fileAttachment: FileAttachment) {
+            fileAttachment.editCommentMode = true;
+            //set updated comment field to previous comment value
+            fileAttachment.updatedComment = fileAttachment.Comment || "";
+        }
+
+        public updateFileAttachmentComment(fileAttachment: FileAttachment): void {
+            if (!fileAttachment || !fileAttachment.Id || !fileAttachment.updatedComment) return;
+
+            if (!this.onUpdatedCommentValidateInput(fileAttachment)) return; // check validation rules are ok
+
+            var httpPromise = this.fileAttachmentService.editFileAttachmentComment(fileAttachment.Id, this.fileAttachmentOriginEnum[fileAttachment.FileOrigin], fileAttachment.updatedComment).then(() => {
+                this.clearEditCommentMode(fileAttachment); //TODO MGA: useless if we reload all data from srv
+                // retrieve update list of files with updated file comment from srv : TODO MGA improve reload (costly)
+                this.getAttachedFiles();
+                // TODO MGA : highlight updated comment ?
+            });
+
+            this.httpPromises.push(httpPromise);
+        }
+
+        /**
+         * TODO MGA: improve inline-form error handling & UI feedback ! not dynamic // fluid to use
+         * @param fileAttachment
+         */
+        public onUpdatedCommentValidateInput = (fileAttachment: FileAttachment): boolean => {
+            if (!fileAttachment.updatedComment || fileAttachment.updatedComment.length < 1) {
+                fileAttachment.updatedCommentErrorMessage = 'comment must be non-empty';
+                return false;
+            } else if (fileAttachment.updatedComment && fileAttachment.updatedComment.length >= MAX_COMMENT_LENGTH) {
+                fileAttachment.updatedCommentErrorMessage = `comment must be < ${MAX_COMMENT_LENGTH} characters`;
+                return false;
+            } else {
+                fileAttachment.updatedCommentErrorMessage = null; //reset error message to flag comment as valid
+                return true;
+            }
+        }
+
+        /**
+         * Handler dedicated to prevent on keypress='enter' the submission of a form if this component is inside one.
+         * Instead, it pushes the new value 
+         */
+        public onCommentInputKeyPress = ($event: JQueryEventObject, fileAttachment: FileAttachment): void => {
+
+            var keyCode = $event.keyCode || $event.which;
+
+            if (keyCode === 13) { // 'Enter' key pressed
+                //prevent form submission
+                $event.preventDefault();
+                //call 
+                this.updateFileAttachmentComment(fileAttachment);
+
+            }
+        }
+
+        public cancelEditComment(fileAttachment: FileAttachment): void {
+            fileAttachment.editCommentMode = false;
+            //fileAttachment.updatedComment = ""; // TODO MGA: decide behavior ? better to keep last entry ? but then we must also keep error message
+            //fileAttachment.updatedCommentErrorMessage = null;
+        }
+
+        //#endregion
 
         //#endregion
 

@@ -38,18 +38,24 @@ var tsOutputDir = 'dist/js',
 
 /// TASKS ///
 
-gulp.task('clean-dist', function (cb) {
+gulp.task('clean-dist', function () {
     // delete the files
-    del(['dist/**/*.*'], cb);
+    //TODO MGA: use del without return ? sync enough to wait for it ?
+    return del(['dist/**/*.*']);
 });
 
 //TODO MGA: fix ts-lint task
-gulp.task('ts-lint', function () {
-    return gulp.src([tsSrc]).pipe(tslint()).pipe(tslint.report('verbose'));
+gulp.task('ts-lint', ['clean-dist'], function () {
+    return gulp.src([tsSrc])
+        .pipe(tslint({
+            configuration: "tslint.json",
+            formatter: "verbose"
+        })).pipe(tslint.report());
     //return gulp.src(tsSrc).pipe(tslint({ configuration: require("./tslint.json")})).pipe(tslint.report('prose'));
 });
 
-gulp.task('compile-ts', function () { //TODO MGA: clean-dist dependency necessary before this one can start ?
+gulp.task('compile-ts', ['clean-dist'], function () {
+    //gulp.task('compile-ts', ['clean-dist','ts-lint'], function () { // TODO MGA: fix ts-lint and add as dependency
     var tsResults = gulp.src([tsSrc, tsExternalDefinitions])
                         .pipe(sourcemaps.init())// This means sourcemaps will be generated
                         .pipe(ts(tsProject));
@@ -58,9 +64,9 @@ gulp.task('compile-ts', function () { //TODO MGA: clean-dist dependency necessar
                      .pipe(gulp.dest(tsdOutputDir)),
 
         tsResults.js.pipe(concat(tsOutputFileName))//Comment uglify to get un-minified sources
+                    //TODO MGA: breaks source maps ?
                     .pipe(ngAnnotate())
                     //TODO MGA: we should not minify by default, but let consumer build tools take care of that ?
-                    //TODO MGA: breaks source maps ?
                     //.pipe(uglify()) //comment/uncomment to toggle minification
                     //TODO MGA: sourcemaps keeps track of original .ts files + the concatenated .js file : how to only have the 2 original ts files ?
                     .pipe(sourcemaps.write())// Now the sourcemaps are added to the .js file
@@ -76,8 +82,8 @@ gulp.task('compile-ts', function () { //TODO MGA: clean-dist dependency necessar
  * 4 - compress output js
  * TODO MGA: keep track of sourcemaps ?
  */
-gulp.task('compile-tpl', function () { //TODO MGA: clean-dist dependency necessary ?
-    gulp.src(partialsSrc)
+gulp.task('compile-tpl', ['clean-dist'], function () {
+    return gulp.src(partialsSrc)
         .pipe(htmlmin({
             collapseWhitespace: true,
             removeComments: true
@@ -97,7 +103,7 @@ gulp.task('compile-tpl', function () { //TODO MGA: clean-dist dependency necessa
  * 2 - concatenate css in 1 file
  * 3 - keep tracks of sourceMaps
  */
-gulp.task('compile-css', function () { //TODO MGA: clean-dist dependency necessary ?
+gulp.task('compile-css', ['clean-dist'], function () {
     return gulp.src(cssSrc)
     .pipe(sourcemaps.init())
     //TODO MGA: we should not minify by default, but let consumer build tools take care of that ?

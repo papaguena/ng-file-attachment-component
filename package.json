@@ -13,7 +13,7 @@
     "gulp-sourcemaps": "1.x.x",
     "merge2": "1.x.x",
     "del": "2.x.x",
-    "gulp-tslint": "1.x.x",
+    "gulp-tslint": "6.x.x",
     "tslint": "3.x.x",
     "gulp-concat": "2.x.x",
     "gulp-uglify": "1.x.x",
