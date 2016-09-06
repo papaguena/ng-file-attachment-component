@@ -55,9 +55,10 @@
     padding: 5px 10px;
 }
 
-#file-attachment-container #file-attachment-table .align-text-with-btn-inside-table-cell {
+#file-attachment-container .comment-field-container {
     display: inline-block;
     padding: 5px 10px;
+    max-width: 400px;
 }
 
 #file-attachment-container .input-comment-form-control {
@@ -71,9 +72,9 @@
     vertical-align: middle;
 }
 
-#file-attachment-container .input-comment-form-control .help-block {
-    margin-bottom: 0;
-}
+    #file-attachment-container .input-comment-form-control .help-block {
+        margin-bottom: 0;
+    }
 
 #file-attachment-container .edit-comment-action-btns {
     display: inline-block;
@@ -90,4 +91,26 @@
 
 #file-attachment-container .edit-comment-action-btns button {
     /*float: right;*/
+}
+
+#file-attachment-container .full-height-grid-cell, .full-height-grid-cell.row-fluid > div[class*='col-'] {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    flex: 1 1 auto;
+}
+
+#file-attachment-container .edit-comment-btn-container {
+    justify-content: center;
+    align-items: center;
+}
+
+#file-attachment-container .word-wrap-break-word {
+    word-wrap: break-word;
+}
+
+#file-attachment-container .action-btn-container {
+    min-width: 104px;
 }
