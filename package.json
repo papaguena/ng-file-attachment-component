@@ -6,22 +6,23 @@
     "node": "*"
   },
   "private": true,
-  "dependencies": { },
+  "dependencies": {},
   "devDependencies": {
     "gulp": "3.x.x",
-    "gulp-typescript": "2.x.x",
-    "gulp-sourcemaps": "1.x.x",
+    "gulp-typescript": "3.x.x",
+    "gulp-sourcemaps": "2.x.x",
     "merge2": "1.x.x",
     "del": "2.x.x",
-    "gulp-tslint": "6.x.x",
-    "tslint": "3.x.x",
+    "gulp-tslint": "7.x.x",
+    "tslint": "4.x.x",
     "gulp-concat": "2.x.x",
-    "gulp-uglify": "1.x.x",
+    "gulp-uglify": "2.x.x",
     "gulp-rename": "1.x.x",
     "gulp-ng-annotate": "2.x.x",
     "gulp-ng-html2js": "0.x.x",
-    "gulp-htmlmin": "1.x.x",
-    "gulp-clean-css":  "2.x.x" 
+    "gulp-htmlmin": "3.x.x",
+    "gulp-clean-css": "3.x.x",
+    "typescript": "2.x.x"
   },
   "_comment": "this package description file corresponds to a node package, and is only used to list the node package dependencies of this project. This enables a simple npm install to fetch the dependencies needed from npm"
 }
