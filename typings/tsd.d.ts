@@ -5,3 +5,4 @@
 /// <reference path="underscore/underscore.d.ts" />
 //TODO MGA : how to reference ng-http-wrapper through tsd ?
 /// <reference path="../bower_components/ng-http-wrapper/dist/definitions/ng-http-wrapper.d.ts" />
+/// <reference path="../bower_components/bluesky-core-models/dist/bluesky-core-models.d.ts" />

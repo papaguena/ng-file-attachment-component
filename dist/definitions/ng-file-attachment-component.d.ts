@@ -40,66 +40,6 @@ interface File {
     getFileExtension(): string;
 }
 
-declare namespace bluesky.core.models {
-    /**
-     * TODO MGA : decide on practice to share enums with srv etc
-     */
-    enum ApplicationOriginEnum {
-        QuoteWizard = 0,
-        OrderEntry = 1,
-        OrderTracking = 2,
-    }
-}
-
-declare namespace bluesky.core.models {
-    /**
-     * TODO MGA : decide on practice to share enums with srv etc
-     */
-    enum FileAttachmentOriginEnum {
-        QuoteWizardFileAttachment = 0,
-        OrderEntryCustomDetails = 1,
-        OrderEntryAudioCustomDetail = 2,
-        OrderTrackingFileAttachment = 3,
-    }
-}
-
-declare namespace bluesky.core.models {
-    /**
-     * TODO MGA : export an interface too ?
-     */
-    class FileAttachment {
-        Id: number;
-        FileName: string;
-        Comment: string;
-        UploaderInformation: UserInformation;
-        CreationDate: string;
-        FileOrigin: string;
-        CanCurrentUserDownloadFile: boolean;
-        CanCurrentUserDeleteFile: boolean;
-        CanCurrentUserEditComment: boolean;
-        editCommentMode: boolean;
-        updatedComment: string;
-        updatedCommentErrorMessage: string;
-        constructor(Id: number, FileName: string, Comment: string, UploaderInformation: UserInformation, CreationDate: string, FileOrigin: string, CanCurrentUserDownloadFile: boolean, CanCurrentUserDeleteFile: boolean, CanCurrentUserEditComment: boolean, editCommentMode: boolean, updatedComment: string, updatedCommentErrorMessage: string);
-    }
-    class UserInformation {
-        FirstName: string;
-        LastName: string;
-        DisplayName: string;
-        userIdentifier: string;
-        Email: string;
-        PhoneNumber: string;
-        constructor(FirstName: string, LastName: string, DisplayName: string, userIdentifier: string, Email: string, PhoneNumber: string);
-    }
-}
-
-declare namespace bluesky.core.models {
-    class JsonBooleanResponse {
-        booleanResponse: boolean;
-        constructor(booleanResponse: boolean);
-    }
-}
-
 declare namespace bluesky.core.components {
     import FileAttachment = bluesky.core.models.FileAttachment;
     import FileAttachmentOriginEnum = bluesky.core.models.FileAttachmentOriginEnum;
@@ -185,5 +125,58 @@ declare namespace bluesky.core.components {
         controllerAs: string;
         templateUrl: string;
         constructor();
+    }
+}
+
+declare namespace bluesky.core.models {
+    /**
+     * TODO MGA : decide on practice to share enums with srv etc
+     */
+    enum ApplicationOriginEnum {
+        QuoteWizard = 0,
+        OrderEntry = 1,
+        OrderTracking = 2,
+    }
+}
+
+declare namespace bluesky.core.models {
+    /**
+     * TODO MGA : decide on practice to share enums with srv etc
+     */
+    enum FileAttachmentOriginEnum {
+        QuoteWizardFileAttachment = 0,
+        OrderEntryCustomDetails = 1,
+        OrderEntryAudioCustomDetail = 2,
+        OrderTrackingFileAttachment = 3,
+    }
+}
+
+declare namespace bluesky.core.models {
+    /**
+     * TODO MGA : export an interface too ?
+     */
+    class FileAttachment {
+        Id: number;
+        FileName: string;
+        Comment: string;
+        UploaderInformation: UserInformation;
+        CreationDate: string;
+        FileOrigin: string;
+        CanCurrentUserDownloadFile: boolean;
+        CanCurrentUserDeleteFile: boolean;
+        CanCurrentUserEditComment: boolean;
+        editCommentMode: boolean;
+        updatedComment: string;
+        updatedCommentErrorMessage: string;
+        constructor(Id: number, FileName: string, Comment: string, UploaderInformation: UserInformation, CreationDate: string, FileOrigin: string, CanCurrentUserDownloadFile: boolean, CanCurrentUserDeleteFile: boolean, CanCurrentUserEditComment: boolean, editCommentMode: boolean, updatedComment: string, updatedCommentErrorMessage: string);
+    }
+    class UserInformation {
+        FirstName: string;
+        LastName: string;
+        DisplayName: string;
+        userIdentifier: string;
+        Email: string;
+        PhoneNumber: string;
+        constructor(FirstName: string, LastName: string, DisplayName: string, userIdentifier: string, Email: string, PhoneNumber: string);
     }
 }

@@ -4,7 +4,7 @@
     import FileContent = bluesky.core.models.FileContent;
     import FileAttachmentOriginEnum = bluesky.core.models.FileAttachmentOriginEnum;
     import ApplicationOriginEnum = bluesky.core.models.ApplicationOriginEnum;
-    import JsonBooleanResponse = bluesky.core.models.JsonBooleanResponse;
+    import IJsonBooleanResponseDto = bluesky.core.model.IJsonBooleanResponseDto;
 
     export interface IFileAttachmentService {
 
@@ -125,12 +125,12 @@
         }
 
         getCurrentUserUploadRights(elementId: number, applicationOrigin: ApplicationOriginEnum): ng.IPromise<boolean> {
-            return this.httpWrapperService.get<JsonBooleanResponse>('file-attachment/get-current-user-upload-rights',
+            return this.httpWrapperService.get<IJsonBooleanResponseDto>('file-attachment/get-current-user-upload-rights',
                 {
                     params: { 'elementId': elementId, 'applicationOrigin': this.applicationOriginEnum[applicationOrigin] },
                     apiEndpoint: true
                 })
-                .then((response) => response.booleanResponse);
+                .then((response) => response.BooleanResponse);
         }
 
     }
